@@ -15,7 +15,10 @@
 \usepackage{float}
 \usepackage{amsmath}
 \usepackage{amssymb}
-
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
 
 %%% Задаем стиль заголовков и подзаголовков в тексте %%%
 
@@ -184,6 +187,20 @@ isbn=false,                                         % Не показывать 
 \OnehalfSpacing* % Задаем полуторный интервал текста (в титульнике одинарный, поэтому команда стоит после него)
 
 \tableofcontents*                                   % Автособираемое оглавление
+
+\lstset{
+    language=C,
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{blue},
+    commentstyle=\color[HTML]{2B8315},
+    stringstyle=\color{red},
+    frame=single,
+    breaklines=true,
+    breakatwhitespace=true,
+    tabsize=4,
+    showstringspaces=false,
+    extendedchars=true
+}
 
 \input{2_intro}                                     % Введение
 \input{3_chap1}                                     % Первая глава

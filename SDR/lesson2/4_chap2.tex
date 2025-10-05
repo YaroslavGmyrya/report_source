@@ -1,288 +1,208 @@
 \chapter{Практическая часть}
 \label{ch:chap2}
 
-\section*{Adalm Pluto SDR}
+\section*{\textbf{Передача данных между Adalm Pluto и хостом}}
 
-\textbf{Adalm Pluto SDR} --- компактная и автономная портативная SDR-платформа, 
-разработанная компанией \textbf{Analog Devices} для обучения основам SDR и радиочастотных технологий, 
-а также подходящая для радиолюбительских экспериментов. 
+Передача данных (IQ-сэмплов) между Adalm Pluto и хост-компьютером осуществляется посредством USB 2.0. Важно отметить, 
+что в случае с SDR, данные необходимо передавать непрерывно в обе стороны (с хост-компьютера на SDR и обратно) одновременно. 
+Хоть и теоретическая пропускная способность USB 2.0 равна 480 Mb/s, работа в полудуплексном режиме с передачей данных в 
+обе стороны одновременно (с точки зрения пользователя) разительно снижается. Целевое значение частоты дискретизации 
+желательно задавать в пределах ~6 Msps.
 
-Она сочетает в себе \textbf{приемопередатчик AD9363} и \textbf{процессор Xilinx Zynq}, позволяя генерировать 
-и измерять аналоговые радиочастотные сигналы в широком диапазоне частот. 
+\section*{\textbf{Timestamping}}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.8\textwidth]{AdalmPluto.png}
-    \caption{Внешний вид Adalm Pluto}
-\end{figure}
+В библиотеке SoapySDR реализованы функции получения временных меток (timestamp) с FPGA (Xilinx Zynq). Временные метки (timestamp) привязаны к каждому запросу 
+данных с буфера ПЛИС, что, в свою очередь, позволяет синхронно получать/передавать данные в потоках RX/TX. Более того, 
+из-за проблем с пропускной способностю USB 2.0 возникает проблема увеличения частоты дескритизации, при больших значениях которой,
+USB 2.0 не может обеспечить полноценную передачу и прием (одновременных) сэмплов из Adalm Pluto на хост-компьютер. 
+Выявить данную проблему можно благодаря реализации функции временных меток с Xilinx Zynq.
 
-\section*{Архитектура Adalm Pluto SDR}
+\section*{\textbf{Установка необходимых библиотек и зависимостей}}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.6\textwidth]{AdalmArch.png}
-    \caption{Архитектура Adalm Pluto}
-\end{figure}
+\textbf{SoapySDR}
 
-\section*{Описание основных блоков Adalm Pluto}
+SoapySDR — открытая обобщённая API и библиотека времени выполнения для взаимодействия с SDR-устройствами. 
+С помощью SoapySDR можно создавать экземпляры, настраивать и вести потоковую передачу данных с SDR-устройством в различных средах.
+Большинство готовых SDR-платформ поддерживаются SoapySDR, и многие открытые приложения используют SoapySDR для интеграции с 
+оборудованием. Кроме того, SoapySDR имеет привязки к средам разработки, таким как GNU Radio и Pothos.
 
-\subsection*{\textbf{PA (Power Amplifier)}}
-\begin{description}
-  \item[\textbf{Функция:}] Усиление сигнала до уровня, требуемого для излучения.
-\end{description}
+\begin{lstlisting}
+sudo apt-get install python3-pip python3-setuptools
+sudo apt-get install cmake g++ libpython3-dev python3-numpy swig python3-matplotlib
 
-\subsection*{\textbf{LNA (Low Noise Amplifier)}}
-\begin{description}
-  \item[\textbf{Функция:}] Усиление слабого приёмного сигнала с минимальным добавлением шума перед его дальнейшей обработкой.
-\end{description}
+git clone --branch soapy-sdr-0.8.1 https://github.com/TelecomDep/SoapySDR.git
 
-\subsection*{\textbf{ADC / DAC}}
-\begin{description}
-  \item[\textbf{ADC (Analog-to-Digital Conversion):}] оцифровка аналогового сигнала в цифровой поток для последующей цифровой обработки.
-  \item[\textbf{DAC (Digital-to-Analog Conversion):}] преобразование цифровых семплов в аналоговый сигнал перед микшированием.
-\end{description}
+cd SoapySDR
+mkdir build && cd build
 
-\subsection*{\textbf{FIR (Finite Impulse Response)}}
-\begin{description}
-  \item[\textbf{Функция:}] детальная фильтрация, коррекция формы спектра, компенсация искажений.
-\end{description}
+cmake ../
 
-\subsection*{\textbf{Mixer}}
-\begin{description}
-  \item[\textbf{TX:}] перенос низкочастотного сигнала (baseband) на несущую частоту (subcarrier) для отправки в эфир.
-  \item[\textbf{RX:}] перенос высокочастотного сигнала на низкочастотный для дальнейшей обработки.
-\end{description}
+make -j 16
+sudo make install
+sudo ldconfig
+\end{lstlisting}
 
-\subsection*{\textbf{Filter}}
-\begin{description}
-  \item[\textbf{TX:}] фильтрация выходного сигнала перед передачей, подавление лишних гармоник.
-  \item[\textbf{RX:}] фильтрация принимаемого сигнала, подавление внеполосных помех перед оцифровкой.
-\end{description}
+\textbf{Libiio}
 
-\subsection*{\textbf{libiio}}
-\begin{description}
-  \item[\textbf{Описание:}] библиотека, которая облегчает работу с устройствами ввода/вывода в \textbf{Linux}, особенно с радиочипами серии \textbf{AD936x}. 
-  Она даёт \textbf{API} для обмена данными и управления устройствами.
-\end{description}
+libiio — библиотека, разработанная компанией Analog Devices, которая предназначена для упрощения работы с устройствами ввода-вывода
+данных (I/O), особенно с программируемыми аналогово-цифровыми и цифро-аналоговыми преобразователями (ADC/DAC), а также с 
+радиооборудованием на базе платформы ADI (например, ADALM-PLUTO). Позволяет читать и записывать данные в реальном времени.
 
-\subsection*{\textbf{Linux Kernel}}
-\begin{description}
-  \item[\textbf{Описание:}] ядро \textbf{Linux}, управляющее процессором, памятью и устройствами ввода-вывода.
-\end{description}
+\begin{lstlisting}
+sudo apt-get install libxml2 libxml2-dev bison flex libcdk5-dev cmake
+sudo apt-get install libusb-1.0-0-dev libaio-dev pkg-config 
+sudo apt install libavahi-common-dev libavahi-client-dev
 
-\subsection*{\textbf{DMA (Direct Memory Access)}}
-\begin{description}
-  \item[\textbf{Описание:}] механизм, который автоматически переносит большие объёмы данных между устройством и памятью, разгружая процессор.
-\end{description}
 
-\subsection*{\textbf{Drivers}}
-\begin{description}
-  \item[\textbf{Описание:}] инструкции для ядра, объясняющие, как правильно пользоваться конкретным оборудованием.
-\end{description}
+git clone --branch v0.24 https://github.com/TelecomDep/libiio.git
 
-\subsection*{\textbf{Xilinx Zynq}}
-\begin{description}
-  \item[\textbf{Описание:}] семейство микросхем от компании Xilinx. На одном кристалле 
-  объединены ARM-процессор (обычно на 2 ядра), который запускает Linux, управляет периферией, и ПЛИС (FPGA) для реализации аппаратных блоков (фильтры, ускорители обработки сигналов) и для более скоростных вычислений в реальном времени. 
-\end{description}
+cd libiio
+mkdir build && cd build
+cmake ../
+make -j 16
+sudo make install
+\end{lstlisting}
 
-\subsection*{\textbf{USB 2.0}}
-\begin{description}
-  \item[\textbf{Описание:}] порт для связи хоста и Adalm Pluto.
-\end{description}
+\textbf{LibAD9361}
 
-\subsection*{\textbf{GNU Radio}}
+LibAD9361 - библиотека для работы с радиочипами семейства AD9361 от Analog Devices. В сочетании с libiio позволяет организовать 
+потоковое чтение/запись данных в реальном времени.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{GNURadio.png}
-    \caption{Логотип GNU Radio}
-\end{figure}
+\begin{lstlisting}
+git clone --branch v0.3 https://github.com/TelecomDep/libad9361-iio.git
+cd libad9361-iio
 
-\textbf{GNU Radio} --- это инструмент с открытым исходным кодом для разработки программного обеспечения 
-в сфере программно-определяемого радио. 
+mkdir build && cd build
 
-Он позволяет при помощи «строительных блоков» создавать конфигурации радиоустройств, не написав ни одной строчки кода, 
-и запускать программы непосредственно с использованием SDR-модулей, например: \textbf{Adalm-Pluto}, \textbf{LimeSDR} и др. \\
+cmake ../
 
-В библиотеке имеется широкий спектр функций для цифровой обработки сигналов. Модули написаны на \textbf{C++}, 
-а их взаимодействие реализовано на \textbf{Python}. Приложения можно строить как через \textbf{API GNU Radio}, 
-так и посредством графического интерфейса \textbf{GNU Radio Companion (GRC)}.
+make -j 16
+sudo make install
+sudo ldconfig
+\end{lstlisting}
 
-\section*{\textbf{Построение схемы в GNU Radio}}
+\textbf{SoapyPlutoSDR}
 
-\subsection*{\textbf{Блок options}}
+SoapyPlutoSDR - библиотека, которая является расширением библиотеки SoapySDR, предназначенная для работы конкретно с Adalm Pluto. 
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{options.png}
-    \caption{Блок options}
-\end{figure}
+\begin{lstlisting}
+git clone --branch sdr_gadget_timestamping https://github.com/TelecomDep/SoapyPlutoSDR.git
+cd SoapyPlutoSDR
 
-Этот блок задает настройки проекта. Самое важное здесь: \textbf{Output Language} и \textbf{Generate Options}. \\
-\textbf{Output Language} — язык, на котором будет сгенерирован код программы (у меня это Python). \\
-\textbf{Generate Options} — используемый графический интерфейс (у меня это QT).
+mkdir build && cd build
 
-\subsection*{\textbf{Блок variable}}
+cmake ../
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{var.png}
-    \caption{Блок variable}
-\end{figure}
+make -j 16
+sudo make install
+sudo ldconfig
+\end{lstlisting}
 
-В этом блоке можно задать переменную (почти как в языке программирования). Переменная имеет ID (имя) и значение.  
-Я таким образом задаю переменную \texttt{samp\_rate} (частоту дискретизации), равную $2.4 \times 10^6$ Hz.
+\section*{\textbf{Основне моменты работы с Adalm Pluto напрямую из C++}}
 
-\subsection*{\textbf{QT GUI Range}}
+\subsection*{\textbf{Подключение библиотек}}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{qt_range.png}
-    \caption{Блок QT GUI Range}
-\end{figure}
+\begin{lstlisting}
+// Init device
+#include <SoapySDR/Device.h>  
+// Data types for writing samples 
+#include <SoapySDR/Formats.h>  
+\end{lstlisting}
 
-Этот блок задает ползунок из QT, позволяющий удобно менять значение переменной во время работы программы.  
-Это позволяет не перезапускать программу, когда нам требуется поменять какое-либо значение.  
-Я таким образом задаю ползунок для настройки частоты приема FM волны.
+\subsection*{\textbf{Инициализация устройства}}
 
-Основные параметры блока: 
+\begin{lstlisting}
+//create struct for init
+SoapySDRKwargs args = {};
 
-\begin{itemize}
-    \item \textbf{Default Value} — значение, которое будет устанавливаться при запуске программы;
-    \item \textbf{Start} — минимальное значение;
-    \item \textbf{Stop} — максимальное значение;
-    \item \textbf{Step} — шаг изменения при сдвиге ползунка.
-\end{itemize}
+//Select device type
+SoapySDRKwargs_set(&args, "driver", "plutosdr");       
+if (1) {
+    // Sample transmission method (usb)
+    SoapySDRKwargs_set(&args, "uri", "usb:");           
+} else {
+    // Or IP
+    SoapySDRKwargs_set(&args, "uri", "ip:192.168.2.1"); 
+}
+SoapySDRKwargs_set(&args, "direct", "1");
+// Buffer size and timestamps              
+SoapySDRKwargs_set(&args, "timestamp_every", "1920");  
+// Use antennas?
+SoapySDRKwargs_set(&args, "loopback", "0");
+// Init             
+SoapySDRDevice *sdr = SoapySDRDevice_make(&args);    
+// Free memory   
+SoapySDRKwargs_clear(&args);
+\end{lstlisting}
 
-\subsection*{\textbf{PlutoSDR Source}}
+\subsection*{\textbf{Формирование потоков и буферов}}
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{source.png}
-    \caption{Блок PlutoSDR Source}
-\end{figure}
+\begin{lstlisting}
+// create streams
+SoapySDRStream *rxStream = SoapySDRDevice_setupStream(sdr, SOAPY_SDR_RX, SOAPY_SDR_CS16, channels, channel_count, NULL);
+SoapySDRStream *txStream = SoapySDRDevice_setupStream(sdr, SOAPY_SDR_TX, SOAPY_SDR_CS16, channels, channel_count, NULL);
 
-Этот блок отвечает за приём данных от устройства ADALM-Pluto (PlutoSDR). Он подключается к SDR, управляет его настройками, получает поток отсчётов. \\
+//start streaming
+SoapySDRDevice_activateStream(sdr, rxStream, 0, 0, 0); 
+SoapySDRDevice_activateStream(sdr, txStream, 0, 0, 0);
 
-\textbf{Параметры:}
 
-\begin{itemize}
-    \item \textbf{IIO context URI} — IP адрес Adalm Pluto, нужен, потому что PlutoSDR может подключаться по USB или сети (Ethernet/USB-Ethernet);
-    \item \textbf{LO (Local Oscillator)} — локальный генератор частоты или центральная частота приёма, т.е. радиостанция, которую хотим слушать;
-    \item \textbf{Sample Rate} — частота дискретизации АЦП внутри PlutoSDR. Определяет, с какой частотой будут делаться отсчеты при оцифровке;
-    \item \textbf{Buffer Size} — встроенный буфер для временного хранения данных перед их передачей в компьютер;
-    \item \textbf{Quadrature} — задаём представление сигнала в виде I/Q семплов;
-    \item \textbf{RF DC Correction} — исправляет постоянную составляющую (DC offset), которая может появляться из-за несовершенства тракта;
-    \item \textbf{BB DC Correction} — исправляет смещение в baseband-сигнале;
-    \item \textbf{Gain Mode (RX1)} — режим автоматической регулировки усиления (AGC). Slow Attack — плавное изменение усиления;
-    \item \textbf{Filter Configuration} — выбор полосовых фильтров в тракте SDR. В режиме Auto плата сама подбирает оптимальную конфигурацию фильтров;
-    \item \textbf{RF Bandwidth} — полоса пропускания приёмного тракта.
-\end{itemize}
+// Get RX/TX MTU sizes
 
-\subsection*{\textbf{Low Pass Filter}}
+size_t rx_mtu = SoapySDRDevice_getStreamMTU(sdr, rxStream);
+size_t tx_mtu = SoapySDRDevice_getStreamMTU(sdr, txStream);
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{filter.png}
-    \caption{Блок Low Pass Filter}
-\end{figure}
+// allocate memory for buffers (for RX/TX samples)
+int16_t tx_buff[2 *tx_mtu];
+int16_t rx_buffer[2 *rx_mtu];
+\end{lstlisting}
 
-Ограничивает полосу сигнала, выделяя только FM-станцию. \\
 
-\textbf{Параметры:}
+\subsection*{\textbf{Получение I/Q семплов}}
 
-\begin{itemize}
-    \item \textbf{Decimation} — снижение частоты дискретизации в n раз;
-    \item \textbf{Gain} — усиление амплитуды после фильтрации;
-    \item \textbf{Sample Rate} — дефолтная частота дискретизации;
-    \item \textbf{Cutoff Freq} — полоса 100 кГц (ширина FM сигнала).
-\end{itemize}
+\begin{lstlisting}
+// start receive samples
+for (size_t buffers_read = 0; buffers_read < iteration_count; buffers_read++)
+{
+    void *rx_buffs[] = {rx_buffer};
+    // flags set by receive operation
+    int flags;    
+    //timestamp for receive buffer   
+    long long timeNs; 
+    
+    // Read samples from stream and write I/Q samples in file
+    int sr = SoapySDRDevice_readStream(sdr, rxStream, rx_buffs, rx_mtu, &flags, &timeNs, timeoutUs);
+    // write in file
+    for(int i = 0; i < rx_mtu * 2; i++){
+        fprintf(file, "%d %d\n", rx_buffer[i], rx_buffer[i+1]);
+    }
+}
+\end{lstlisting}
 
-\subsection*{\textbf{QT GUI Frequency Sink}}
+\subsection*{\textbf{Освобождение памяти}}
+
+\begin{lstlisting}
+//stop streaming
+SoapySDRDevice_deactivateStream(sdr, rxStream, 0, 0);
+SoapySDRDevice_deactivateStream(sdr, txStream, 0, 0);
+
+//shutdown the stream
+SoapySDRDevice_closeStream(sdr, rxStream);
+SoapySDRDevice_closeStream(sdr, txStream);
+
+//cleanup device handle
+SoapySDRDevice_unmake(sdr);
+\end{lstlisting}
+
+После работы программы создатся файл samples.txt, в котором будут храниться полученные семплы в формате: (I,Q). Для визуализации
+I(t) и Q(t) напишем простой парсер на Python. Результат:
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{freq_sink.png}
-    \caption{Блок QT GUI Frequency Sink}
+    \includegraphics[width=0.8\textwidth]{ItQt.png}
+    \caption{Графики I(t) и Q(t)}
 \end{figure}
 
-Этот блок при помощи QT задает спектральное представление сигнала, которое меняется в реальном времени.  
-Таких блоков 2: до фильтра (напрямую из блока source) и после фильтра. Первый показывает весь эфир, а второй — захваченный сигнал (именно FM частоту). \\
+Можем наблюдать, что графики напонимают прямоугольный сигнал.
 
-\textbf{Параметры:}
-
-\begin{itemize}
-    \item \textbf{FFT Size} — кол-во точек для спектра;
-    \item \textbf{Center Frequency} — центральная частота захвата;
-    \item \textbf{Bandwidth} — полоса частот захвата.
-\end{itemize}
-
-\subsection*{\textbf{QT GUI Time Sink}}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{time_sink.png}
-    \caption{Блок QT GUI Time Sink}
-\end{figure}
-
-Этот блок при помощи QT задает временное представление сигнала, которое меняется в реальном времени. \\
-
-\textbf{Параметры:}
-
-\begin{itemize}
-    \item \textbf{Number of Points} — кол-во точек, отображаемых в каждый момент времени;
-    \item \textbf{Sample Rate} — частота дискретизации при отрисовке;
-    \item \textbf{Autoscale} — нужно ли масштабировать сигнал по вертикали.
-\end{itemize}
-
-\subsection*{\textbf{WBFM Receive}}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{wbfm.png}
-    \caption{Блок WBFM Receive}
-\end{figure}
-
-Блок демодуляции FM-сигнала. \\
-
-\textbf{Параметры:}
-
-\begin{itemize}
-    \item \textbf{Quadrature Rate} — входная частота дискретизации (после фильтра и децимации);
-    \item \textbf{Audio Decimation} — уменьшение дискретизации для звука (в моем случае до 48k, чего вполне достаточно для звука).
-\end{itemize}
-
-На выходе — звуковой сигнал.
-
-\subsection*{\textbf{Audio Sink}}
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{audio_out.png}
-    \caption{Блок Audio Sink}
-\end{figure}
-
-От \textbf{WBFM Receive} звук идет на блок \textbf{Audio Sink} — блок, который выводит звуковой поток на аудиокарту хоста. \\
-
-\textbf{Параметры:}
-
-\begin{itemize}
-    \item \textbf{Sample Rate} — стандартная частота звука.
-\end{itemize}
-
-Соединить блоки нужно следующим образом, тогда у нас получится работающая радиосистема, которая будет принимать FM радио.
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{system.png}
-    \caption{Пример простой радиосистемы в GNURadio}
-\end{figure}
-
-Пример работы программы:
-
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=1.0\textwidth]{system.png}
-    \caption{Пример работы программы}
-\end{figure}
+\endinput
