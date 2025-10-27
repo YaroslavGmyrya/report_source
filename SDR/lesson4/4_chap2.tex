@@ -1,208 +1,249 @@
 \chapter{Практическая часть}
 \label{ch:chap2}
 
-% \section*{\textbf{Передача данных между Adalm Pluto и хостом}}
+\section*{\textbf{Введение}}
 
-% Передача данных (IQ-сэмплов) между Adalm Pluto и хост-компьютером осуществляется посредством USB 2.0. Важно отметить, 
-% что в случае с SDR, данные необходимо передавать непрерывно в обе стороны (с хост-компьютера на SDR и обратно) одновременно. 
-% Хоть и теоретическая пропускная способность USB 2.0 равна 480 Mb/s, работа в полудуплексном режиме с передачей данных в 
-% обе стороны одновременно (с точки зрения пользователя) разительно снижается. Целевое значение частоты дискретизации 
-% желательно задавать в пределах ~6 Msps.
+На практике продолжаем реализовывать сигналы разной формы. На этом занятии реализую сигнал параболической формы и треугольный сигнал.
 
-% \section*{\textbf{Timestamping}}
+\section*{\textbf{Треугольный сигнал}}
 
-% В библиотеке SoapySDR реализованы функции получения временных меток (timestamp) с FPGA (Xilinx Zynq). Временные метки (timestamp) привязаны к каждому запросу 
-% данных с буфера ПЛИС, что, в свою очередь, позволяет синхронно получать/передавать данные в потоках RX/TX. Более того, 
-% из-за проблем с пропускной способностю USB 2.0 возникает проблема увеличения частоты дескритизации, при больших значениях которой,
-% USB 2.0 не может обеспечить полноценную передачу и прием (одновременных) сэмплов из Adalm Pluto на хост-компьютер. 
-% Выявить данную проблему можно благодаря реализации функции временных меток с Xilinx Zynq.
+Я буду формировать такой сигнал по следующему принципу:
 
-% \section*{\textbf{Установка необходимых библиотек и зависимостей}}
+\begin{enumerate}
+    \item Если бит равен единице, то в момент длительности сигнала $\frac{\tau}{2}$ буду
+    задавать максимальное значение, а в остлаьных случаях буду задавать нули. Таким образом в одной точке будет образовываться пик,
+    который и будет придавать сигналу форму треугольного.
+    \item Если бит равен 0, то на всей длительности $\tau$ сигнал будет принимать 0.
+\end{enumerate}
 
-% \textbf{SoapySDR}
+\subsection*{\textbf{Программная реализация}}
 
-% SoapySDR — открытая обобщённая API и библиотека времени выполнения для взаимодействия с SDR-устройствами. 
-% С помощью SoapySDR можно создавать экземпляры, настраивать и вести потоковую передачу данных с SDR-устройством в различных средах.
-% Большинство готовых SDR-платформ поддерживаются SoapySDR, и многие открытые приложения используют SoapySDR для интеграции с 
-% оборудованием. Кроме того, SoapySDR имеет привязки к средам разработки, таким как GNU Radio и Pothos.
+\begin{lstlisting}
+    #define TAU 10
+    #define TAU_ON_ELEMENT 20
 
-% \begin{lstlisting}
-% sudo apt-get install python3-pip python3-setuptools
-% sudo apt-get install cmake g++ libpython3-dev python3-numpy swig python3-matplotlib
+    int16_t* bits_to_triangle_signal(uint8_t* bits, int bits_count, int tx_mtu){
 
-% git clone --branch soapy-sdr-0.8.1 https://github.com/TelecomDep/SoapySDR.git
+    // allocate memory
+    int16_t* tx_buff = (int16_t*)malloc(sizeof(int16_t) * tx_mtu * 2);
 
-% cd SoapySDR
-% mkdir build && cd build
+    // iterate on bitts
+    for (int i = 0; i < bits_count; ++i)
+    {   
+        // fill tx_buff with samples
+        for(int j = i*TAU_ON_ELEMENT; j < i*TAU_ON_ELEMENT + 20 && j < tx_mtu*2; j+=2){
+            if(bits[i] && j == i*TAU_ON_ELEMENT + 8){
+                tx_buff[j] = 2047 << 4;    // I
+                tx_buff[j+1] = -2047 << 4; // Q
+            } else{
+                tx_buff[j] = 0;      //I
+                tx_buff[j+1] = 0;    //Q
+            }
+        }
+    }
 
-% cmake ../
+    return tx_buff;
+}
+\end{lstlisting}
 
-% make -j 16
-% sudo make install
-% sudo ldconfig
-% \end{lstlisting}
+Код полностью идентичен коду, который использовался для создания прямоугольного сигнала. Единственное отличие заключается в условии
 
-% \textbf{Libiio}
+\begin{lstlisting}
+    j == i*TAU_ON_ELEMENT + 8
+\end{lstlisting}
 
-% libiio — библиотека, разработанная компанией Analog Devices, которая предназначена для упрощения работы с устройствами ввода-вывода
-% данных (I/O), особенно с программируемыми аналогово-цифровыми и цифро-аналоговыми преобразователями (ADC/DAC), а также с 
-% радиооборудованием на базе платформы ADI (например, ADALM-PLUTO). Позволяет читать и записывать данные в реальном времени.
+Это условие как раз и позволяет выбрать одну конкретную точку, в которой задается максимальное значение.
 
-% \begin{lstlisting}
-% sudo apt-get install libxml2 libxml2-dev bison flex libcdk5-dev cmake
-% sudo apt-get install libusb-1.0-0-dev libaio-dev pkg-config 
-% sudo apt install libavahi-common-dev libavahi-client-dev
-
-
-% git clone --branch v0.24 https://github.com/TelecomDep/libiio.git
-
-% cd libiio
-% mkdir build && cd build
-% cmake ../
-% make -j 16
-% sudo make install
-% \end{lstlisting}
-
-% \textbf{LibAD9361}
-
-% LibAD9361 - библиотека для работы с радиочипами семейства AD9361 от Analog Devices. В сочетании с libiio позволяет организовать 
-% потоковое чтение/запись данных в реальном времени.
-
-% \begin{lstlisting}
-% git clone --branch v0.3 https://github.com/TelecomDep/libad9361-iio.git
-% cd libad9361-iio
-
-% mkdir build && cd build
-
-% cmake ../
-
-% make -j 16
-% sudo make install
-% sudo ldconfig
-% \end{lstlisting}
-
-% \textbf{SoapyPlutoSDR}
-
-% SoapyPlutoSDR - библиотека, которая является расширением библиотеки SoapySDR, предназначенная для работы конкретно с Adalm Pluto. 
-
-% \begin{lstlisting}
-% git clone --branch sdr_gadget_timestamping https://github.com/TelecomDep/SoapyPlutoSDR.git
-% cd SoapyPlutoSDR
-
-% mkdir build && cd build
-
-% cmake ../
-
-% make -j 16
-% sudo make install
-% sudo ldconfig
-% \end{lstlisting}
-
-% \section*{\textbf{Основне моменты работы с Adalm Pluto напрямую из C++}}
-
-% \subsection*{\textbf{Подключение библиотек}}
-
-% \begin{lstlisting}
-% // Init device
-% #include <SoapySDR/Device.h>  
-% // Data types for writing samples 
-% #include <SoapySDR/Formats.h>  
-% \end{lstlisting}
-
-% \subsection*{\textbf{Инициализация устройства}}
-
-% \begin{lstlisting}
-% //create struct for init
-% SoapySDRKwargs args = {};
-
-% //Select device type
-% SoapySDRKwargs_set(&args, "driver", "plutosdr");       
-% if (1) {
-%     // Sample transmission method (usb)
-%     SoapySDRKwargs_set(&args, "uri", "usb:");           
-% } else {
-%     // Or IP
-%     SoapySDRKwargs_set(&args, "uri", "ip:192.168.2.1"); 
-% }
-% SoapySDRKwargs_set(&args, "direct", "1");
-% // Buffer size and timestamps              
-% SoapySDRKwargs_set(&args, "timestamp_every", "1920");  
-% // Use antennas?
-% SoapySDRKwargs_set(&args, "loopback", "0");
-% // Init             
-% SoapySDRDevice *sdr = SoapySDRDevice_make(&args);    
-% // Free memory   
-% SoapySDRKwargs_clear(&args);
-% \end{lstlisting}
-
-% \subsection*{\textbf{Формирование потоков и буферов}}
-
-% \begin{lstlisting}
-% // create streams
-% SoapySDRStream *rxStream = SoapySDRDevice_setupStream(sdr, SOAPY_SDR_RX, SOAPY_SDR_CS16, channels, channel_count, NULL);
-% SoapySDRStream *txStream = SoapySDRDevice_setupStream(sdr, SOAPY_SDR_TX, SOAPY_SDR_CS16, channels, channel_count, NULL);
-
-% //start streaming
-% SoapySDRDevice_activateStream(sdr, rxStream, 0, 0, 0); 
-% SoapySDRDevice_activateStream(sdr, txStream, 0, 0, 0);
+Визуализируем сигнал:
 
 
-% // Get RX/TX MTU sizes
 
-% size_t rx_mtu = SoapySDRDevice_getStreamMTU(sdr, rxStream);
-% size_t tx_mtu = SoapySDRDevice_getStreamMTU(sdr, txStream);
+Отправим сформированный сигнал и посмотрим на результат после приема.
 
-% // allocate memory for buffers (for RX/TX samples)
-% int16_t tx_buff[2 *tx_mtu];
-% int16_t rx_buffer[2 *rx_mtu];
-% \end{lstlisting}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{triangle.png}
+    \caption{Пример принятого треугольного сигнала}
+\end{figure}
+
+\section*{\textbf{Параболический сигнал}}
+
+Сформируем параболу, перебирая точки от $-\frac{tx\_mtu}{10}$ до $-\frac{tx\_mtu}{10} + 2\frac{tx\_mtu}{10}$, где $tx\_mtu$ - кол-во семплов,
+передаваемых за раз. Деление на 10 используется для масштабирования, чтобы не возводить большие числа в квадрат.
+
+\subsection*{\textbf{Программная реализация}}
+
+\begin{lstlisting}
+    int16_t* parabola_signal(int tx_mtu){
+
+    // allocate memory
+    int16_t* tx_buff = (int16_t*)malloc(sizeof(int16_t) * tx_mtu * 2);
+
+    float coef = -tx_mtu / 10;
+
+    for (int i = 0; i < 2 * tx_mtu; i+=2)
+    {
+        tx_buff[i] = int16_t(coef * coef);   // I
+        tx_buff[i+1] = int16_t(coef * coef); // Q
+
+        coef += 0.1;
+    }
+
+    return tx_buff;
+}
+\end{lstlisting}
+
+\subsection*{\textbf{Визуализация}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{parab.png}
+    \caption{Пример сигнала в виде параболы}
+\end{figure}
+
+\subsection*{\textbf{Визуализация после приема}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{rx_parab.png}
+    \caption{Пример сигнала в виде параболы на приеме}
+\end{figure}
+
+Можем наблюдать параболу в нашем сигнале, по центру парабола отображена вверх, потому что я строил график модуля сигнала.
+
+\section*{\textbf{Реализация BPSK модуляции}}
+
+Шаги по реализации:
+
+\begin{enumerate}
+    \item Написать BPSK модуляцию (логика маппера)
+    \item На основе I и Q, полученных на прошлом шаге, сгенерировать прямоугольные импульсы (логика формирующего фильтра)
+    \item Перемножить прямоугольные импульсы на несущее колебание
+    \item Проанализировать полученные результаты и сделать вывод
+\end{enumerate}
+
+\subsection*{\textbf{BPSK модулятор}}
+
+Реализация на языке С:
+
+\begin{lstlisting}
+double* BPSK_modulation(int* bits, int bits_count){
+    //allocate memory
+    double* IQ_samples = (double*)malloc(sizeof(double) * bits_count * 2);
+    //iterate on bits
+    for(int i,j = 0; i < bits_count * 2; i+=2){
+        if(bits[j]){
+            IQ_samples[i] = 1;      // I
+            IQ_samples[i + 1] = 0;  // Q
+        }else{
+            IQ_samples[i] = -1;     // I
+            IQ_samples[i + 1] = 0;  // Q
+        }
+
+        ++j;
+    }
+
+    return IQ_samples;
+}
+\end{lstlisting}
+
+Сначала выделяем память под IQ семплы, т.к на каждый бит приходится 1 семпл, а на 1 семпл - 2 числа (I и Q), то размер массива 
+с семплами должен быть вдвое больше кол-ва бит. Далее перебираем биты и в зависимости от его значения формируем семпл. В результирующем
+массиве I и Q идут в строгой последовательности $I_0,Q_0,I_1,Q_1,...,I_N,Q_N$. Массив в дальнейшем запишется в файл.
+
+\subsection*{\textbf{Формирующий фильтр}}
+
+На языке Python парсим файл с семплами из прошлого шага. Далее формируем прямоугольные импульсы. Визуализация импульсов:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{bpsk_symb.png}
+    \caption{Символы}
+\end{figure}
+
+Здесь явно видно, что в BPSK модуляции квадратурная составляющая всегда равна 0. Я передавал последовательность в 12 бит и это
+заняло 12 секунд, т.е на каждый бит приходился 1 символ, который длился 1 секунду.
+
+\subsection*{\textbf{Перемножение с несущим колебанием}}
+
+Теперь перемножим символы с несущим колебанием. В роли несущего колебания я использовал $cos(2\pi f_сt)$ и $-sin(2\pi f_сt)$ с частотой
+$f_с = 1$. В реальности частоты несущих колебаний в разы больше, но для наглядности я взял маленькое значение. Этот процесс можно
+сравнить с наложением маски, где маской является прямоугольный сигнал. Если посмотреть на схему цифровой системы связи, которая
+была дана в разделе с теорией, то этот процесс происходит в цепи, которая следует после формирующего фильтра. Визуализация результата:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{bpsk_mul_symb.png}
+    \caption{Перемножение с несущим сигналом}
+\end{figure}
+
+Можем видеть, что квадратурная компонента по прежнему равна 0, т.е в сигнале присутствует только $cos$. В синфазной компоненте
+можем видеть, как меняется фаза колебания, которая отражает значение бита. Если фаза равна 0, то передается 1, если фаза равна $\pi$,
+то передается 0. В местах, где меняется фаза, происходит смена значения бита. Таким образом можно восстановить передаваемую битовую
+последовательность. Результирующий сигнал будет иметь вид синфазной компоненты, т.к квадратурная всегда равна 0.
+
+\section*{\textbf{Реализация QPSK модуляции}}
+
+Шаги по реализации будут в точности такие же, как у BPSK модуляции, но слегка будет отличаться реализация.\\
+
+Реализация на языке С:
+
+\begin{lstlisting}
+double* QPSK_modulation(int* bits, int bits_count){
+    //allocate memory
+    double* IQ_samples = (double*)malloc(sizeof(double) * bits_count);
+    //iterate on bits
+    for(int i = 0; i < bits_count; i+=2){
+        if(bits[i]){
+            IQ_samples[i] = -1;          //I
+            if(bits[i + 1]){
+                IQ_samples[i + 1] = -1;  //Q
+            }else{
+                IQ_samples[i + 1] = 1; // Q
+            }
+        }else{
+            IQ_samples[i] = 1;         //I
+            if(bits[i + 1]){
+                IQ_samples[i + 1] = 1;  //Q
+            }else{
+                IQ_samples[i + 1] = -1; //Q
+            }
+        }
+    }
 
 
-% \subsection*{\textbf{Получение I/Q семплов}}
+    return IQ_samples;
+}
+\end{lstlisting}
 
-% \begin{lstlisting}
-% // start receive samples
-% for (size_t buffers_read = 0; buffers_read < iteration_count; buffers_read++)
-% {
-%     void *rx_buffs[] = {rx_buffer};
-%     // flags set by receive operation
-%     int flags;    
-%     //timestamp for receive buffer   
-%     long long timeNs; 
-    
-%     // Read samples from stream and write I/Q samples in file
-%     int sr = SoapySDRDevice_readStream(sdr, rxStream, rx_buffs, rx_mtu, &flags, &timeNs, timeoutUs);
-%     // write in file
-%     for(int i = 0; i < rx_mtu * 2; i++){
-%         fprintf(file, "%d %d\n", rx_buffer[i], rx_buffer[i+1]);
-%     }
-% }
-% \end{lstlisting}
+Заметим, что в случае QPSK модуляции массив под семплы вдвое меньше, т.к в QPSK модуляции на 1 семпл приходится 2 бита.
 
-% \subsection*{\textbf{Освобождение памяти}}
+\subsection*{\textbf{Формирующий фильтр}}
 
-% \begin{lstlisting}
-% //stop streaming
-% SoapySDRDevice_deactivateStream(sdr, rxStream, 0, 0);
-% SoapySDRDevice_deactivateStream(sdr, txStream, 0, 0);
+Визуализация импульсов:
 
-% //shutdown the stream
-% SoapySDRDevice_closeStream(sdr, rxStream);
-% SoapySDRDevice_closeStream(sdr, txStream);
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{qpsk_symb.png}
+    \caption{Символы}
+\end{figure}
 
-% //cleanup device handle
-% SoapySDRDevice_unmake(sdr);
-% \end{lstlisting}
+Можем заметить, что появляется квадратурная часть. Также можно заметить, что та же последовательность из 12 бит передается уже
+за 6 секунд. Это связано с тем, что в QPSK на семпл приходится 2 бита. Можно сделать вывод о том, что чем больше точек в сигнальном
+созвездии, тем выше скорость передачи данных. 1 символ длится уже не 1 секунду, а 0.5 секунд (на графике чуть неверный масштаб)
 
-% После работы программы создатся файл samples.txt, в котором будут храниться полученные семплы в формате: (I,Q). Для визуализации
-% I(t) и Q(t) напишем простой парсер на Python. Результат:
+\subsection*{\textbf{Перемножение с несущим колебанием}}
 
-% \begin{figure}[H]
-%     \centering
-%     \includegraphics[width=0.8\textwidth]{ItQt.png}
-%     \caption{Графики I(t) и Q(t)}
-% \end{figure}
+Визуализация результата:
 
-% Можем наблюдать, что графики напонимают прямоугольный сигнал.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{qpsk_mul_symb.png}
+    \caption{Перемножение с несущим сигналом}
+\end{figure}
+
+Можем видеть, что квадратурная компонента теперь не равна 0, т.е в сигнале присутствует $cos$ и $sin$. Еще можно заметить, что
+максимальная амплитуда в результирующем сигнале уже не равна 1, а равна $\sqrt{I^2+Q^2} = \sqrt{1^2+1^2} = \sqrt{2}$.
+Результирующий сигнал будет иметь вид $Icos(2\pi f_ct) - Qsin(2\pi f_ct)$. 
 
 \endinput

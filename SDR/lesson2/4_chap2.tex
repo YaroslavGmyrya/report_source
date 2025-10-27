@@ -127,7 +127,6 @@ if (1) {
 SoapySDRKwargs_set(&args, "direct", "1");
 // Buffer size and timestamps              
 SoapySDRKwargs_set(&args, "timestamp_every", "1920");  
-// Use antennas?
 SoapySDRKwargs_set(&args, "loopback", "0");
 // Init             
 SoapySDRDevice *sdr = SoapySDRDevice_make(&args);    
@@ -195,7 +194,7 @@ SoapySDRDevice_unmake(sdr);
 \end{lstlisting}
 
 После работы программы создатся файл samples.txt, в котором будут храниться полученные семплы в формате: (I,Q). Для визуализации
-I(t) и Q(t) напишем простой парсер на Python. Результат:
+I(t) и Q(t) воспользуемся Python.
 
 \begin{figure}[H]
     \centering

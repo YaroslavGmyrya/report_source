@@ -3,12 +3,7 @@
 
 \section*{Adalm Pluto SDR}
 
-\textbf{Adalm Pluto SDR} --- компактная и автономная портативная SDR-платформа, 
-разработанная компанией \textbf{Analog Devices} для обучения основам SDR и радиочастотных технологий, 
-а также подходящая для радиолюбительских экспериментов. 
-
-Она сочетает в себе \textbf{приемопередатчик AD9363} и \textbf{процессор Xilinx Zynq}, позволяя генерировать 
-и измерять аналоговые радиочастотные сигналы в широком диапазоне частот. 
+\textbf{Adalm Pluto SDR} - модель SDR, разработанная компанией \textbf{Analog Devices} для обучения основам SDR.
 
 \begin{figure}[H]
     \centering
@@ -28,68 +23,59 @@
 
 \subsection*{\textbf{PA (Power Amplifier)}}
 \begin{description}
-  \item[\textbf{Функция:}] Усиление сигнала до уровня, требуемого для излучения.
+  \item[\textbf{Функция:}] Усиление сигнала.
 \end{description}
 
 \subsection*{\textbf{LNA (Low Noise Amplifier)}}
 \begin{description}
-  \item[\textbf{Функция:}] Усиление слабого приёмного сигнала с минимальным добавлением шума перед его дальнейшей обработкой.
+  \item[\textbf{Функция:}] Усиление слабого приёмного сигнала с минимальным добавлением шума.
 \end{description}
 
 \subsection*{\textbf{ADC / DAC}}
 \begin{description}
-  \item[\textbf{ADC (Analog-to-Digital Conversion):}] оцифровка аналогового сигнала в цифровой поток для последующей цифровой обработки.
-  \item[\textbf{DAC (Digital-to-Analog Conversion):}] преобразование цифровых семплов в аналоговый сигнал перед микшированием.
+  \item[\textbf{ADC (Analog-to-Digital Conversion):}] оцифровка аналогового сигнала.
+  \item[\textbf{DAC (Digital-to-Analog Conversion):}] преобразование цифровых семплов в аналоговый сигнал.
 \end{description}
 
 \subsection*{\textbf{FIR (Finite Impulse Response)}}
 \begin{description}
-  \item[\textbf{Функция:}] детальная фильтрация, коррекция формы спектра, компенсация искажений.
+  \item[\textbf{Функция:}] детальная фильтрация, коррекция формы спектра.
 \end{description}
 
 \subsection*{\textbf{Mixer}}
 \begin{description}
-  \item[\textbf{TX:}] перенос низкочастотного сигнала (baseband) на несущую частоту (subcarrier) для отправки в эфир.
-  \item[\textbf{RX:}] перенос высокочастотного сигнала на низкочастотный для дальнейшей обработки.
+  \item[\textbf{TX:}] перенос низкочастотного сигнала на несущую частоту.
+  \item[\textbf{RX:}] перенос высокочастотного сигнала на низкочастотный.
 \end{description}
 
 \subsection*{\textbf{Filter}}
 \begin{description}
-  \item[\textbf{TX:}] фильтрация выходного сигнала перед передачей, подавление лишних гармоник.
-  \item[\textbf{RX:}] фильтрация принимаемого сигнала, подавление внеполосных помех перед оцифровкой.
+  \item[\textbf{TX:}] фильтрация выходного сигнала перед передачей.
+  \item[\textbf{RX:}] фильтрация принимаемого сигнала.
 \end{description}
 
 \subsection*{\textbf{libiio}}
 \begin{description}
-  \item[\textbf{Описание:}] библиотека, которая облегчает работу с устройствами ввода/вывода в \textbf{Linux}, особенно с радиочипами серии \textbf{AD936x}. 
+  \item[\textbf{Описание:}] библиотека, которая облегчает работу с устройствами ввода/вывода в \textbf{Linux}. 
   Она даёт \textbf{API} для обмена данными и управления устройствами.
 \end{description}
 
 \subsection*{\textbf{Linux Kernel}}
 \begin{description}
-  \item[\textbf{Описание:}] ядро \textbf{Linux}, управляющее процессором, памятью и устройствами ввода-вывода.
-\end{description}
-
-\subsection*{\textbf{DMA (Direct Memory Access)}}
-\begin{description}
-  \item[\textbf{Описание:}] механизм, который автоматически переносит большие объёмы данных между устройством и памятью, разгружая процессор.
+  \item[\textbf{Описание:}] ядро \textbf{Linux}. Управляет железом.
 \end{description}
 
 \subsection*{\textbf{Drivers}}
 \begin{description}
-  \item[\textbf{Описание:}] инструкции для ядра, объясняющие, как правильно пользоваться конкретным оборудованием.
+  \item[\textbf{Описание:}] обеспечение корректной работы Linux с устройствами.
 \end{description}
 
 \subsection*{\textbf{Xilinx Zynq}}
 \begin{description}
   \item[\textbf{Описание:}] семейство микросхем от компании Xilinx. На одном кристалле 
-  объединены ARM-процессор (обычно на 2 ядра), который запускает Linux, управляет периферией, и ПЛИС (FPGA) для реализации аппаратных блоков (фильтры, ускорители обработки сигналов) и для более скоростных вычислений в реальном времени. 
+  объединены ARM-процессор, на котором работает Linux, и ПЛИС для более скоростных вычислений. 
 \end{description}
 
-\subsection*{\textbf{USB 2.0}}
-\begin{description}
-  \item[\textbf{Описание:}] порт для связи хоста и Adalm Pluto.
-\end{description}
 
 \subsection*{\textbf{GNU Radio}}
 
@@ -99,7 +85,7 @@
     \caption{Логотип GNU Radio}
 \end{figure}
 
-\textbf{GNU Radio} --- это инструмент с открытым исходным кодом для разработки программного обеспечения 
+\textbf{GNU Radio} - это инструмент с открытым исходным кодом для разработки программного обеспечения 
 в сфере программно-определяемого радио. 
 
 Он позволяет при помощи «строительных блоков» создавать конфигурации радиоустройств, не написав ни одной строчки кода, 
@@ -115,36 +101,36 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{options.png}
+    \includegraphics[width=0.5\textwidth]{options.png}
     \caption{Блок options}
 \end{figure}
 
 Этот блок задает настройки проекта. Самое важное здесь: \textbf{Output Language} и \textbf{Generate Options}. \\
-\textbf{Output Language} — язык, на котором будет сгенерирован код программы (у меня это Python). \\
-\textbf{Generate Options} — используемый графический интерфейс (у меня это QT).
+\textbf{Output Language} — язык, на котором будет сгенерирован код программы. \\
+\textbf{Generate Options} — используемый графический интерфейс.
 
 \subsection*{\textbf{Блок variable}}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{var.png}
+    \includegraphics[width=0.5\textwidth]{var.png}
     \caption{Блок variable}
 \end{figure}
 
 В этом блоке можно задать переменную (почти как в языке программирования). Переменная имеет ID (имя) и значение.  
-Я таким образом задаю переменную \texttt{samp\_rate} (частоту дискретизации), равную $2.4 \times 10^6$ Hz.
+Здесь задается \texttt{samp\_rate} (частота дискретизации), равная $2.4 \times 10^6$ Hz.
 
 \subsection*{\textbf{QT GUI Range}}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{qt_range.png}
+    \includegraphics[width=0.5\textwidth]{qt_range.png}
     \caption{Блок QT GUI Range}
 \end{figure}
 
 Этот блок задает ползунок из QT, позволяющий удобно менять значение переменной во время работы программы.  
 Это позволяет не перезапускать программу, когда нам требуется поменять какое-либо значение.  
-Я таким образом задаю ползунок для настройки частоты приема FM волны.
+Здесь задается ползунок для настройки частоты приема FM волны.
 
 Основные параметры блока: 
 
@@ -159,32 +145,26 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{source.png}
+    \includegraphics[width=0.5\textwidth]{source.png}
     \caption{Блок PlutoSDR Source}
 \end{figure}
 
-Этот блок отвечает за приём данных от устройства ADALM-Pluto (PlutoSDR). Он подключается к SDR, управляет его настройками, получает поток отсчётов. \\
+Этот блок отвечает за приём данных от устройства ADALM-Pluto (PlutoSDR). Он подключается к SDR, управляет настройками, получает поток отсчётов. \\
 
 \textbf{Параметры:}
 
 \begin{itemize}
     \item \textbf{IIO context URI} — IP адрес Adalm Pluto, нужен, потому что PlutoSDR может подключаться по USB или сети (Ethernet/USB-Ethernet);
-    \item \textbf{LO (Local Oscillator)} — локальный генератор частоты или центральная частота приёма, т.е. радиостанция, которую хотим слушать;
     \item \textbf{Sample Rate} — частота дискретизации АЦП внутри PlutoSDR. Определяет, с какой частотой будут делаться отсчеты при оцифровке;
     \item \textbf{Buffer Size} — встроенный буфер для временного хранения данных перед их передачей в компьютер;
     \item \textbf{Quadrature} — задаём представление сигнала в виде I/Q семплов;
-    \item \textbf{RF DC Correction} — исправляет постоянную составляющую (DC offset), которая может появляться из-за несовершенства тракта;
-    \item \textbf{BB DC Correction} — исправляет смещение в baseband-сигнале;
-    \item \textbf{Gain Mode (RX1)} — режим автоматической регулировки усиления (AGC). Slow Attack — плавное изменение усиления;
-    \item \textbf{Filter Configuration} — выбор полосовых фильтров в тракте SDR. В режиме Auto плата сама подбирает оптимальную конфигурацию фильтров;
-    \item \textbf{RF Bandwidth} — полоса пропускания приёмного тракта.
 \end{itemize}
 
 \subsection*{\textbf{Low Pass Filter}}
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{filter.png}
+    \includegraphics[width=0.5\textwidth]{filter.png}
     \caption{Блок Low Pass Filter}
 \end{figure}
 
@@ -203,7 +183,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{freq_sink.png}
+    \includegraphics[width=0.5\textwidth]{freq_sink.png}
     \caption{Блок QT GUI Frequency Sink}
 \end{figure}
 
@@ -222,7 +202,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{time_sink.png}
+    \includegraphics[width=0.5\textwidth]{time_sink.png}
     \caption{Блок QT GUI Time Sink}
 \end{figure}
 
@@ -240,7 +220,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{wbfm.png}
+    \includegraphics[width=0.5\textwidth]{wbfm.png}
     \caption{Блок WBFM Receive}
 \end{figure}
 
@@ -259,7 +239,7 @@
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{audio_out.png}
+    \includegraphics[width=0.5\textwidth]{audio_out.png}
     \caption{Блок Audio Sink}
 \end{figure}
 
@@ -279,10 +259,8 @@
     \caption{Пример простой радиосистемы в GNURadio}
 \end{figure}
 
-Пример работы программы:
-
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1.0\textwidth]{system.png}
+    \includegraphics[width=1.0\textwidth]{gnuwork.png}
     \caption{Пример работы программы}
 \end{figure}
