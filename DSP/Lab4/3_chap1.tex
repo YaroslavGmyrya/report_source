@@ -15,7 +15,7 @@
 тогда спектр линий сливается, образуя сплошной непрерывный спектр - спектральную функцию.
 
 \[
-S(t) = \sum_{n=-\infty}^{\infty} C_n e^{-i\omega_0nt}
+S(t) = \sum_{n=-\infty}^{\infty} C_n e^{i\omega_0nt}
 \]
 
 \[
@@ -44,7 +44,7 @@ S(t) = \frac{1}{2\pi} \lim_{\delta \omega \rightarrow 0} \sum_{n=-\infty}^{\inft
 Сумма переходит в пределе в интеграл.
 
 \[
-S(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} \left[ \int_{-\infty}^{+\infty} S(t)e^{i\omega t} \, dt \right] e^{i\omega t} \, d\omega
+S(t) = \frac{1}{2\pi} \int_{-\infty}^{+\infty} \left[ \int_{-\infty}^{+\infty} S(t)e^{-i\omega t} \, dt \right] e^{i\omega t} \, d\omega
 \]
 
 Преобразование Фурье:

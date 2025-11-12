@@ -1,0 +1,218 @@
+\chapter{Ход работы}
+\label{ch:chap2}
+
+\section{Основные блоки СМО}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{model.png}
+    \caption{Схема проектируемой модели}
+\end{figure}
+
+СМО должна содержать генератор заявок, очередь заявок, сервер обработки заявок. В случае, если
+заявка отброшена, то она должна снова поступать в очередь.
+
+\section{Генератор заявок}
+
+Для генерации заявок в Simulink есть специальный блок \textbf{entity generator}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{entity.png}
+    \caption{Генератор заявок}
+\end{figure}
+
+\subsection{Настройки генератора заявок}
+
+В блоке можно гибко настроить временные интервалы между заявками. Simulink предлагает 3 разных способа. Один из них - задать интервалы с помощью
+matlab кода. Поскольку мы создаем M/M/1 модель, я задам экспоненциальное распределение со средним $\frac{1}{\lambda}$
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{ent_gen.png}
+    \caption{Настройка временных интервалов поступления заявок}
+\end{figure}
+
+Из блока entity generator выходят не просто какие-то числа, а структуры. Их тоже можно гибко настроить. Я создам структуру, которая
+будет иметь приоритет и флаг reject.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{ent_type.png}
+    \caption{Настройка атрибутов структур}
+\end{figure}
+
+Также можно гибко задать логику работы entity generator. В этой логике я буду рандомно задавать приоритет от 1 до 10.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{ent_event.png}
+    \caption{Логика формирования заявок}
+\end{figure}
+
+Дополнительно matlab позволяет выводить статистику блока. Стастика высчитывается автоматически. Каждую статистику можно вывести
+на блок \textbf{scope}, который построит график.
+
+\section{Очередь}
+
+Для создания очереди используется блок \textbf{entity queue}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{q.png}
+    \caption{Очередь заявок}
+\end{figure}
+
+\subsection{Настройки очереди заявок}
+
+Очередь тоже можно настроить достаточно гибко. Можно создать размер очереди (50), задать порядок хранения заявок в очереди: FIFO, LIFO или 
+по атрибуту структуры (как в моем случае). Я буду хранить entity в порядке возрастания приоритета, т.е на сервер в первую очередь
+поступят entity с минимальным (на самом деле максимальным) приоритетом.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{q_main.png}
+    \caption{Основная настройка очереди}
+\end{figure}
+
+Также можно вывести набор метрик на блок scope
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{q_stat.png}
+    \caption{Статистика очереди}
+\end{figure}
+
+Также можно задать дополнительную логику для работы очереди, но я ничего не добавлял.
+
+
+\section{Сервер}
+
+Для обработки заявок существует специальный блок \textbf{entity server}.
+
+\subsection{Настройка сервера}
+
+У сервера можно настроить собственную очередь, т.е за раз сервер может брать больше чем 1 заявку. Время обработки заявки можно
+задать с помощью matlab кода. Я задам экспоненциальное время обработки заявок со средним $\frac{1}{u}$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{server_main.png}
+    \caption{Основная настройка сервера}
+\end{figure}
+
+Также можно задать дополнительно логику обработки заявок. Я буду с некоторой вероятностью отбрасывать заявки. Если заявка обработана,
+то reject = 1, в ином случае reject = 2.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{server_event.png}
+    \caption{Логика обработки заявок}
+\end{figure}
+
+Сервер тоже ведет расчет метрик, которые можно выводить на scope.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{server_stat.png}
+    \caption{Статистика сервера}
+\end{figure}
+
+\section{Создание обратной связи}
+
+\subsection{Entity output switch}
+
+Под обратной связью подразумевается возврат отброшенных заявок обратно в очередь. Для этого необходим блок \textbf{entity output switch}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{out_switch.png}
+    \caption{Entity output switch}
+\end{figure}
+
+Логика блока такая-же, как у коммутатора - определенным образом распределять заявки по каналам.
+
+\subsection{Настройка entity output switch}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{switch_out_settings.png}
+    \caption{Настройки}
+\end{figure}
+
+Заявки будут распределяться по каналам на основе атрибута reject. Если reject = 1, то заявка пойдет по каналу, который просто выводит
+заявку из системы, а если reject = 2, то заявка пойдет по каналу обратной связи обратно в очередь.
+
+\section{Entity input switch}
+
+Для того, чтобы до конца реализовать обратную связь, нужно мультиплексировать выходы entity output switch и entity generator, потому
+что очередь имеет только 1 вход. В роли мультиплексора можно использовать блок \textbf{entity input switch}.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{int_switch.png}
+    \caption{Entity input switch}
+\end{figure}
+
+\section{Настройка entity input switch}
+
+Блок можно гибко настроить. Можно настроить кол-во входов и алгоритм, по которому с каждого входа будет выбираться одна заявка (2 заявки одновременно подать на очередь нельзя).
+Я выбрал алгоритм Round Robin, чтобы заявки с обоих входов поступали поочереди.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{int_switch_settings.png}
+    \caption{Настройка entity input switch}
+\end{figure}
+
+\section{Workspace переменные}
+
+На скринах выше использовались переменные, которые можно посмотреть и изменить в Workspace переменных
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{workspace_variable.png}
+    \caption{Workspace переменные}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{workspace.png}
+    \caption{Workspace переменные}
+\end{figure}
+
+\section{Результат работы}
+
+\subsection{Модель}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{result_model.png}
+    \caption{СМО M/M/1}
+\end{figure}
+
+\subsection{Графики}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{graph1.png}
+    \caption{Метрики СМО}
+\end{figure}
+
+Верхние графики: w - временные интервалы генерации заявок, d - кол-во созданных заявок. Нижние: l - средняя длина очереди, wq - среднее
+время ожидания в очереди. Можем заметить, что график w похож на экспоненциальное распределение. За все время генератор создал 55 заявок.
+На протяжении эксперимента длина очереди и время ожидания в ней росло, это значит, что СМО не справлялась с нагрузкой.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{graph2.png}
+    \caption{Метрики СМО}
+\end{figure}
+
+Верхние графики: dq - кол-во заявок, прошедших через очередь, ds - кол-во заявок, прошедших через сервер. 
+Нижние: wq - среднее время ожидания на сервере, util - утилизация сервера (нагрузка).
+
+Нужно обратить внимание на то, что на графиках dq и ds кол-во заявок вдвое больше, чем на графике d (кол-во сгенерированных заявок).
+Это связано с наличием обратной связи. Вероятность отказа в системе 0.5, поэтому было созданно около 90 заявок, а в очереди и сервере
+побывало около 180 заявок.
+\endinput
