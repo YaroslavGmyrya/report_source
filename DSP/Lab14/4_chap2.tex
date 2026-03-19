@@ -1,0 +1,75 @@
+\chapter{Практика}
+\label{ch:chap2}
+
+\section{Задание 1: Вычисление ПФ прямоугольного сигнала на основе численного интегрирования}
+
+Сгенерируем одиночный прямоугольный импульс и несущее колебание на частоте 100 Гц
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{g1.png}
+    \caption{Baseband and carrier}
+\end{figure}
+
+Перемножим два этих сигнала и получим наш Baseband на частоте 100 Гц. Изобразим его спектр
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{g2.png}
+    \caption{RF signal spectrums}
+\end{figure}
+
+В амплитудном спектре видно, что на 100 Гц находится sinc, т.е спектр нашего Baseband сигнала сместился в точку 100 Гц, т.е 
+мы промодулировали сигнал. \\
+
+Уменьшим длительность сигнала в несколько раз
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{g3.png}
+    \caption{Spectrum widening}
+\end{figure}
+
+Видим, что спектр расширился. Из этого можно сделать вывод, что чем короче импульс, тем шире его спектр.
+
+\section{Задание 2: Спектр последовательности, вычисление при помощи ДПФ}
+Заданы следующие параметры
+
+\begin{enumerate}
+    \item N=128 - длина битовой последовательности
+    \item T=0.01 - длительность символа
+    \item ns=64 - кол-во семплов на бит
+\end{enumerate}
+
+Определим интервал дискретизации $T_s$. Интервал дискретизации это время, через которое мы будем брать отсчеты. Если на 1 бит приходится
+64 семпла, а один бит длится T, то $T_s=\frac{T}{ns}$.\\
+
+Вычислим спектр DFT
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{g4.png}
+    \caption{DFT spectrum, T=0.001s}
+\end{figure}
+
+Получили график схожий с sinc.\\
+
+Увеличим T
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{g5.png}
+    \caption{DFT spectrum, T=0.1s}
+\end{figure}
+
+Спектр стал более узким. Это еще раз говорит о том, что ширина спектра зависит от длительности импульса. \\
+
+Передадим 20 пакетов и посчитаем средний спектр
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{g6.png}
+    \caption{AVG DFT spectrum, T=0.001s}
+\end{figure}
+
+\endinput 

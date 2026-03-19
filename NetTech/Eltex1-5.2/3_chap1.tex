@@ -1,0 +1,46 @@
+\chapter{Теория}
+
+\section{Логическое И}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{table.png}
+    \caption{Таблица истинности для логического И}
+\end{figure}
+
+\section{Сравнение IP-адреса источника и назначения}
+
+Имеется сеть с такой топологией
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{nw1.png}
+    \caption{Топология сети}
+\end{figure}
+
+Перед отправкой пакета PC-1 узнает, в какой сети он находится. Для
+этого PC-1 побитно произведет логическую операцию «И» между своим IP-адресом и своей
+маской подсети
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{and1.png}
+    \caption{Определение своей сети}
+\end{figure}
+
+После того, как PC-1 определил, в какой сети находится, он побитно совершает логическое
+«И» над IP-адресом назначения со своей маской и сравнивает с ранее полученным результатом
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{and2.png}
+    \caption{Определение сети получателя}
+\end{figure}
+
+Как видно, результат одинаковый, а это значит, что PC-2 со своим IP-адресом находится в
+одной сети с PC-1.
+
+
+
+
+\endinput

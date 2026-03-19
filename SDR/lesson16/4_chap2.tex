@@ -1,0 +1,146 @@
+\chapter{Практическая часть}
+\label{ch:chap2}
+
+\section{Реализация M-th power carrier recovery}
+
+
+\begin{lstlisting}
+    void synchronizer::coarse_freq_offset(
+    const std::vector<std::complex<double>> &samples, rx_cfg &rx_config,
+    int Fs) {
+    
+    std::vector<std::complex<double>> pow_samples(samples.size());
+
+    // pow samples to M-th power
+    for (int i = 0; i < samples.size(); ++i) {
+        pow_samples[i] = std::pow(samples[i], rx_config.mod_order);
+    }
+
+    // calculate FFT
+    rx_config.CFO_spectrum = fft(pow_samples, Fs);
+    int nfft = rx_config.CFO_spectrum.first.size();
+
+    // find FFT peak frequency
+    double max = -__DBL_MAX__;
+    int index;
+
+    for (int i = 0; i < nfft; ++i) {
+        if (std::abs(rx_config.CFO_spectrum.first[i]) > max) {
+            max = std::abs(rx_config.CFO_spectrum.first[i]);
+            index = i;
+        }
+    }
+
+    // calculate frequency offset
+    double df = rx_config.CFO_spectrum.second[index] / rx_config.mod_order;
+    double dw = -2 * M_PI * df / Fs;
+
+    rx_config.post_cfo_signal.resize(rx_config.rx_samples.size());
+
+    // recovery signal
+    for (int i = 0; i < rx_config.rx_samples.size(); ++i) {
+        rx_config.post_cfo_signal[i] =
+            samples[i] * std::exp(std::complex<double>(0.0, dw * i));
+    }
+
+    // optional: calculate FFT after recovery (check result)
+    for (int i = 0; i < rx_config.post_cfo_signal.size(); ++i) {
+    pow_samples[i] =
+        std::pow(rx_config.post_cfo_signal[i], rx_config.mod_order);
+    }
+
+    rx_config.post_CFO_spectrum = fft(pow_samples, Fs);
+}
+\end{lstlisting}
+
+Здесь структура rx\_config - структура для межпоточного взаимодействия GUI и основного потока. FFT - дорогая операция, которая
+требует значительной оптимизации, поэтому я использовал библиотеку fftw3. \\
+
+В результате работы функции у нас должно быть 2 спектра: первый спектр, показывающий частотный сдвиг, и второй спектр, показывающий
+отсутствие частотного сдвига после восстановления:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{bcfo.png}
+    \caption{До CFO}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{pcfo.png}
+    \caption{После CFO}
+\end{figure}
+
+На первом изображении частотный сдвиг примерно 1.8кГц, а на втором уже примерно 0. Это означает, что крупный частотный сдвиг устранен, но
+все равно остается небольшой сдвиг + постоянные колебания этого сдвига, которые заставляют фазу крутиться.
+
+
+\section{Costas Loop}
+
+\begin{lstlisting}
+    std::vector<std::complex<double>>
+    synchronizer::costas_loop(const std::vector<std::complex<double>> &samples,
+                          const int L, const double BnTs, const double Kp,
+                          const int mod_order) {
+
+    // define params for loop filter
+    const double zeta = std::sqrt(2) / 2;
+
+    double theta = BnTs / (zeta + 0.25 / zeta);
+    double denom = 1 + 2 * zeta * theta + theta * theta;
+
+    double K1 = 4 * zeta * theta / (denom * Kp);
+    double K2 = 4 * theta * theta / (denom * Kp);
+
+    double phase = 0.0;
+    double freq = 0.0;
+
+    double err;
+
+    std::vector<std::complex<double>> out(samples.size());
+
+    auto sign = [](double x) { return (x > 0) - (x < 0); };
+
+    for (size_t i = 0; i < samples.size(); ++i) {
+        std::complex<double> rot(std::cos(phase), -std::sin(phase));
+
+        std::complex<double> sample = samples[i];
+
+        // rotate
+        out[i] = sample * rot;
+
+        double re = out[i].real();
+        double im = out[i].imag();
+
+        //compute error
+        if (mod_order == 2) {
+        double d = (re + im >= 0) ? 1.0 : -1.0;
+        err = d * (im - re);
+        } else {
+        err = sign(re) * im - sign(im) * re;
+        }
+
+        //loop filter
+        freq += K2 * err;
+        phase += freq + K1 * err;
+    }
+
+    return out;
+}
+\end{lstlisting}
+
+После символьной синхронизации получаем созвездие, которое очень быстро вращается, образовывая при этом окружность. После петли Костаса
+вращение должно устраниться, а точки должны скопиться в кучки, образовывая созвездие.
+
+Пример работы на QPSK:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{cl.png}
+    \caption{После Costas Loop}
+\end{figure}
+
+На верхнем изображении на самом деле очень быстрое вращение (скриншот не может это передать), а на нижнем рисунке вращения нет и точки
+собрались в QPSK созвездие.
+
+\endinput

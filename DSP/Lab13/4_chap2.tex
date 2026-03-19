@@ -1,0 +1,96 @@
+\chapter{Практика}
+\label{ch:chap2}
+
+Выполним реализацию ФВЧ с параметрами:
+
+\begin{enumerate}
+    \item Подавление в полосе задерживания А = 53db
+    \item Частота пропускания $f_{pass}$ = 2000 Hz
+    \item Частота непропускания $f_{stop}$ = 500 Hz
+    \item Переходная полоса $\triangle f = f_{pass} - f_{stop}$
+    \item Частота пропускания $f_c = \frac{f_{pass} + f_{stop}}{2}$ 
+    \item Частота дискретизации $f_s$ = 30000Гц
+\end{enumerate}
+
+\section{ИХ ФВЧ}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{IR.png}
+    \caption{ИХ ФВЧ}
+\end{figure}
+
+Здесь $\Omega_c$ - нормированная (цифровая частота), которая равна $\frac{2\pi f}{f_s}$. Измеряется в $\frac{rad}{sample}$. \\
+
+Изобразим ИХ, предварительно рассчитав кол-во необходимых отсчетов ИХ по эмпирической формуле
+$N = 2M+1$, где $N = \frac{3.3}{\triangle f}$, где $\triangle f = \frac{f_{pass} - f_{stop}}{f_s}$. Отсюда можем 
+найти M как N//2. Также изобразим сдвинутую ИХ (строим от 0 до 2M, а не от -M до M).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{IR_py.png}
+    \caption{Визуализация ИХ ФВЧ}
+\end{figure}
+
+\section{Частотная характеристика ФВЧ}
+Выполним ППФ над ИХ и получим частотную характеристику ФВЧ. Дополнительно изобразим частотную характеристику в логарифмическом 
+масштабе (db):
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{db.png}
+    \caption{Визуализация частотной характеристики}
+\end{figure}
+
+В нашем случае $f_c = 1750Hz$, а на графике при -3db получаем значение $\approx 1800Hz$, что соответствует $f_c$.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{lin.png}
+    \caption{Визуализация частотной характеристики}
+\end{figure}
+
+\section{Тестовый сигнал}
+Сгенерируем сигнал, состоящий из двух компонент: $f_1 = 4000Hz$, $f_2 = 1200Hz$. Изобразим его спектр
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{signal.png}
+    \caption{Тестовый сигнал в частотной и временной области}
+\end{figure}
+
+\section{Фильтрация тестового сигнала}
+С помощью ФВЧ отфильтруем сигнал и изобразим спектр полученного сигнала. В идеале спектральная линия на 1200Hz должна исчезнуть.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{spec.png}
+    \caption{Спектр отфильтрованного сигнала}
+\end{figure}
+
+Линия не исчезла до конца, небольшое кол-во энергии осталось на частоте 1200Hz. 
+
+\section{Весовая функция}
+Для решения проблемы выше используются весовые функции или окна (Ханна, Хемминга т.п). Это окно перемножается с ИХ фильтра,
+чтобы сгладить боковые лепестки. Изобразим окно Хемминга, ИХ и результат их перемножения:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{win.png}
+    \caption{Окно Хемминга и ИХ ФВЧ}
+\end{figure}
+
+Можно заметить, что "хвосты" ИХ сгладились. \\
+
+Теперь пропустим сигнал через новую ИХ:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{spec2.png}
+    \caption{Сигнал на выходе фильтра}
+\end{figure}
+
+Можем заметить, что проблема решена - спектр сигнала стал "чистым".
+
+
+\endinput 

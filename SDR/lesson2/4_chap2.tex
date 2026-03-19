@@ -1,7 +1,7 @@
 \chapter{Практическая часть}
 \label{ch:chap2}
 
-\section*{\textbf{Передача данных между Adalm Pluto и хостом}}
+\section{Передача данных между Adalm Pluto и хостом}
 
 Передача данных (IQ-сэмплов) между Adalm Pluto и хост-компьютером осуществляется посредством USB 2.0. Важно отметить, 
 что в случае с SDR, данные необходимо передавать непрерывно в обе стороны (с хост-компьютера на SDR и обратно) одновременно. 
@@ -9,7 +9,7 @@
 обе стороны одновременно (с точки зрения пользователя) разительно снижается. Целевое значение частоты дискретизации 
 желательно задавать в пределах ~6 Msps.
 
-\section*{\textbf{Timestamping}}
+\section{Timestamping}
 
 В библиотеке SoapySDR реализованы функции получения временных меток (timestamp) с FPGA (Xilinx Zynq). Временные метки (timestamp) привязаны к каждому запросу 
 данных с буфера ПЛИС, что, в свою очередь, позволяет синхронно получать/передавать данные в потоках RX/TX. Более того, 
@@ -17,9 +17,9 @@
 USB 2.0 не может обеспечить полноценную передачу и прием (одновременных) сэмплов из Adalm Pluto на хост-компьютер. 
 Выявить данную проблему можно благодаря реализации функции временных меток с Xilinx Zynq.
 
-\section*{\textbf{Установка необходимых библиотек и зависимостей}}
+\section{Установка необходимых библиотек и зависимостей}
 
-\textbf{SoapySDR}
+\subsection{SoapySDR}
 
 SoapySDR — открытая обобщённая API и библиотека времени выполнения для взаимодействия с SDR-устройствами. 
 С помощью SoapySDR можно создавать экземпляры, настраивать и вести потоковую передачу данных с SDR-устройством в различных средах.
@@ -42,7 +42,7 @@ sudo make install
 sudo ldconfig
 \end{lstlisting}
 
-\textbf{Libiio}
+\subsection{Libiio}
 
 libiio — библиотека, разработанная компанией Analog Devices, которая предназначена для упрощения работы с устройствами ввода-вывода
 данных (I/O), особенно с программируемыми аналогово-цифровыми и цифро-аналоговыми преобразователями (ADC/DAC), а также с 
@@ -63,7 +63,7 @@ make -j 16
 sudo make install
 \end{lstlisting}
 
-\textbf{LibAD9361}
+\subsection{LibAD9361}
 
 LibAD9361 - библиотека для работы с радиочипами семейства AD9361 от Analog Devices. В сочетании с libiio позволяет организовать 
 потоковое чтение/запись данных в реальном времени.
@@ -81,7 +81,7 @@ sudo make install
 sudo ldconfig
 \end{lstlisting}
 
-\textbf{SoapyPlutoSDR}
+\subsection{SoapyPlutoSDR}
 
 SoapyPlutoSDR - библиотека, которая является расширением библиотеки SoapySDR, предназначенная для работы конкретно с Adalm Pluto. 
 
@@ -98,9 +98,9 @@ sudo make install
 sudo ldconfig
 \end{lstlisting}
 
-\section*{\textbf{Основне моменты работы с Adalm Pluto напрямую из C++}}
+\section{Основне моменты работы с Adalm Pluto напрямую из C++}
 
-\subsection*{\textbf{Подключение библиотек}}
+\subsection{Подключение библиотек}
 
 \begin{lstlisting}
 // Init device
@@ -109,7 +109,7 @@ sudo ldconfig
 #include <SoapySDR/Formats.h>  
 \end{lstlisting}
 
-\subsection*{\textbf{Инициализация устройства}}
+\subsection{Инициализация устройства}
 
 \begin{lstlisting}
 //create struct for init
@@ -134,7 +134,7 @@ SoapySDRDevice *sdr = SoapySDRDevice_make(&args);
 SoapySDRKwargs_clear(&args);
 \end{lstlisting}
 
-\subsection*{\textbf{Формирование потоков и буферов}}
+\subsection{Формирование потоков и буферов}
 
 \begin{lstlisting}
 // create streams
@@ -157,7 +157,7 @@ int16_t rx_buffer[2 *rx_mtu];
 \end{lstlisting}
 
 
-\subsection*{\textbf{Получение I/Q семплов}}
+\subsection{Получение I/Q семплов}
 
 \begin{lstlisting}
 // start receive samples
@@ -178,7 +178,7 @@ for (size_t buffers_read = 0; buffers_read < iteration_count; buffers_read++)
 }
 \end{lstlisting}
 
-\subsection*{\textbf{Освобождение памяти}}
+\subsection{Освобождение памяти}
 
 \begin{lstlisting}
 //stop streaming
@@ -193,6 +193,8 @@ SoapySDRDevice_closeStream(sdr, txStream);
 SoapySDRDevice_unmake(sdr);
 \end{lstlisting}
 
+\section{Результат работы}
+
 После работы программы создатся файл samples.txt, в котором будут храниться полученные семплы в формате: (I,Q). Для визуализации
 I(t) и Q(t) воспользуемся Python.
 
@@ -202,6 +204,6 @@ I(t) и Q(t) воспользуемся Python.
     \caption{Графики I(t) и Q(t)}
 \end{figure}
 
-Можем наблюдать, что графики напонимают прямоугольный сигнал.
+Можем заметить, что графики напонимают прямоугольный сигнал.
 
 \endinput

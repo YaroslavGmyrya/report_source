@@ -1,0 +1,242 @@
+\chapter{Практическая часть}
+\label{ch:chap2}
+
+\section{Знакомство с ImGUI и ImPlot}
+
+\subsection{ImGui}
+
+ImGui (Immediate Mode Graphical User Interface) — это библиотека и паттерн проектирования для создания быстрых графических 
+интерфейсов (UI), где элементы отрисовываются каждый кадр непосредственно в коде. Она не хранит состояние UI, что упрощает 
+синхронизацию и позволяет создавать инструменты для отладки, редакторы и интерфейсы для C++ приложений. \\
+
+Приложение создает сцену из графических примитивов, таких как фигуры, линии и т.д., образуя сцены. 
+Графическая библиотека хранит модель сцены в памяти. При отрисовки каждого кадра, приложение обращается к графическому 
+API за обновлением сцены. Затем библиотека отрисовывает сцену.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{imgui.png}
+    \caption{Принцип работы ImGui}
+\end{figure}
+
+Особенности:
+
+\begin{enumerate}
+    \item Интерфейс ImGui вызывается в цикле, каждая итерация цикла считается одним кадром.
+
+    \item Перед началом кадра библиотека должна получить все данные касательно положения мыши, нажатых клавиш и прочих вводных.
+
+    \item Затем вызывается функция, в которой пользователь библиотеки получает структуру ui, рисует свой интерфейс. В этот момент библиотека в реальном времени формирует все виджеты, для каждого виджета определяет попала ли на него мышь, и формирует вершины и треугольники, которые потом будут рисоваться.
+
+    \item Теперь библиотека возвращает все сформированные mesh’и и отдаёт их на рисование бэкенду. Он рисует это на экран.
+
+    \item И так повторяется 60 кадров в секунду (или больше).
+\end{enumerate}
+
+\subsection{ImPlot}
+
+ImPlot — это библиотека для быстрого построения 2D-графиков в реальном времени, разработанная специально для Dear ImGui. 
+Она использует концепцию непосредственного выполнения (immediate mode), позволяя визуализировать данные с высокой 
+производительностью, минимальными затратами ресурсов и легкой интеграцией без внешних зависимостей.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{implot.png}
+    \caption{Возможности ImPlot}
+\end{figure}
+
+\subsection{Работа с ImGui (схематично)}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{prog.png}
+    \caption{Схема программы с ImGui}
+\end{figure}
+
+Пример инициализации:
+
+\begin{lstlisting}
+    // 1) Инициализация SDL
+    SDL_Init(SDL_INIT_VIDEO | SDL_INIT_TIMER);
+    SDL_Window* window = SDL_CreateWindow(
+        "Backend start", SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
+        1024, 768, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE);
+    SDL_GLContext gl_context = SDL_GL_CreateContext(window);
+
+    // 2) Инициализация контекста Dear Imgui
+    ImGui::CreateContext();
+    ImPlot::CreateContext();
+
+    // Ввод\вывод
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;         // Включить Docking
+
+    // 2.1) Привязка Imgui к SDL2 и OpenGl backend'ам
+    ImGui_ImplSDL2_InitForOpenGL(window, gl_context);
+    ImGui_ImplOpenGL3_Init("#version 330");
+\end{lstlisting}
+
+\subsection{Основные элементы ImGui и ImPlot}
+
+\subsubsection{Input}
+
+Виджеты, предназначенные для ввода чисел (int, float, double)
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{input.png}
+    \caption{Пример input виджетов}
+\end{figure}
+
+\begin{lstlisting}
+    static int i0 = 123;
+    ImGui::InputInt("input int", &i0);
+
+    static float f0 = 0.001f;
+    ImGui::InputFloat("input float", &f0, 0.01f, 1.0f, "%.3f");
+
+    static double d0 = 999999.00000001;
+    ImGui::InputDouble("input double", &d0, 0.01f, 1.0f, "%.8f");
+\end{lstlisting}
+
+В функции передаются следующие аргументы:
+
+\begin{enumerate}
+    \item "input double" - уникальный строковый идентификтор. Отображается возле виджета.
+    \item \&d0 - адрес переменной, к которой будет привязан виджет (чье значение будет менять).
+    \item 0.01f - минимальное значение.
+    \item 1.0f - макисмальное значение.
+    \item "\%.8f" - формат вывода.
+\end{enumerate}
+
+\subsubsection{Checkbox и radiobutton}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{rb.png}
+    \caption{Пример radiobutton и checkbox}
+\end{figure}
+
+\begin{lstlisting}
+    static bool check = true;
+    ImGui::Checkbox("checkbox", &check);
+
+    static int e = 0;
+    ImGui::RadioButton("radio a", &e, 0);
+    ImGui::RadioButton("radio b", &e, 1);
+    ImGui::RadioButton("radio c", &e, 2);
+\end{lstlisting}
+
+Radiobutton третьим аргументом принимает значение, которое будет устанавливаться в переменной после нажатия на radiobutton.
+
+\subsubsection{Sliders}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{slider.png}
+    \caption{Пример слайдеров}
+\end{figure}
+
+\begin{lstlisting}
+    static int i1 = 0;
+    ImGui::SliderInt("slider int", &i1, -1, 3);
+
+    static float f1 = 0.123f, f2 = 0.0f;
+    ImGui::SliderFloat("slider float", &f1, 0.0f, 1.0f, "ratio = %.3f");
+    ImGui::SliderFloat("slider float (log)", &f2, -10.0f, 10.0f, "%.4f", ImGuiSliderFlags_Logarithmic);
+\end{lstlisting}
+
+Синтаксис очень похож на виджеты Input, но есть возможность установить флаги, например, для логарифмической шкалы.
+
+\subsubsection{Plots}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{plot.png}
+    \caption{Пример графика}
+\end{figure}
+
+Код:
+
+\begin{lstlisting}
+    if (ImPlot::BeginPlot("I/Q samples", ImVec2(-1, plot_height)))
+    {
+       ImPlot::SetupAxes("Time", "Amplitude");
+       ImPlot::PlotLineG("I component", get_I<int16_t>,
+                         &rx_config.rx_samples,
+                         rx_config.rx_samples.size());
+       ImPlot::PlotLineG("Q component", get_Q<int16_t>,
+                         &rx_config.rx_samples,
+                         rx_config.rx_samples.size());
+       ImPlot::EndPlot();
+    }
+\end{lstlisting}
+
+Вызвать само окно под график можно с помощью ImPlot::BeginPlot(), куда необходимо передать название графика (это в то же время
+его уникальный ID), размер графика в виде структуры ImVec2(width, height). -1 означает, что занимается вся доступная ширина.
+Вызов можно удобно делать в if, что предотвращает появление ошибок. \\
+
+
+Далее идет более детальная настройка графика. С помощью ImPlot::SetupAxes() настраиваются подписи для осей. ImPlot::PlotLineG() позволяет
+отобразить данные. Функция прнимает название выводимых данных, сами данные (адрес), callback функцию и размер данных. Callback функция
+здесь нужна по той причине, что ImPlot умеет работать только с дефолтными массивами и только с дефолтными типами данных. У меня, например,
+была задача вывести вектор комплексных чисел, а это значит, что вектор надо было распарсить на 2 обычных массива с мнимой и реальной
+частью. Делать это крайне неудобно, поэтому разработчики ImPlot позаботились об этом заранее и дали возможность передать в функцию
+указатель на callback функцию, которая будет автоматически применяться к каждому выводимому объекту. \\
+
+По большому счету пользователю требуется только описать то, как парсить данные, а всю остальную рутинную работу сделает ImPlot.\\
+
+Callback функция пишется в строго определенном стиле:
+
+\begin{lstlisting}
+    template <typename T> 
+    ImPlotPoint get_I(int idx, void *user_data) {
+    auto *vec = static_cast<std::vector<std::complex<T>> *>(user_data);
+    return ImPlotPoint(idx, (*vec)[idx].real());
+}
+\end{lstlisting}
+
+Функция должна обязательно иметь сигнатуру, которая указана выше. Здесь объект ImPlotPoint - точка на графике, idx - индекс, который
+ImPlot будет подавать на функцию, user\_data - данные, которые будет подавать ImPlot. Логика такая: ImPlot, допустим, хочет вывести
+вектор, он берет нулевой элемент вектора и индекс (0) подставляет вместо idx, а сам элемент вместо user\_data. Дальше идет обработка,
+в ходе которой должен быть сформирован и возвращен объект точки, который ImPlot отрисует.
+
+
+\section{Подводный камень при работе с GUI}
+При работе с GUI обязательным является вынос логики работы GUI в отдельный поток, поскольку задачи основного потока могут тормозить
+работу GUI и наоборот. Запустить новый поток несложно, но встает вопрос обмена данными между потоками. Для этого использовались 
+обычные структуры, которые по ссылки передавались в потоки. Таким образом, например, основной поток принимал с SDR семплы, а 
+поток GUI сразу же читал их и выводил, причем в такой схеме не требуется синхронизировать потоки, потому что GUI только читает.
+
+\begin{lstlisting}
+     std::thread gui_thread(run_gui, std::ref(tx_config), std::ref(rx_config),
+                         std::ref(sdr_config));
+
+  std::thread sdr_thread(SDR_run, std::ref(sdr_config), std::ref(tx_config),
+                         std::ref(rx_config));
+  gui_thread.join();
+  sdr_thread.join();
+\end{lstlisting}
+
+\section{Результат}
+Имея небольшой функционал, описанный выше, можно построить вполне неплохой GUI:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{rx.png}
+    \caption{GUI для RX}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{tx.png}
+    \caption{GUI для TX}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{sdr.png}
+    \caption{GUI для SDR}
+\end{figure}
+
+\endinput

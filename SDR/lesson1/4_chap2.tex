@@ -1,7 +1,7 @@
-\chapter{Практическая часть}
+\chapter{Практика}
 \label{ch:chap2}
 
-\section*{Adalm Pluto SDR}
+\section{Adalm Pluto SDR}
 
 \textbf{Adalm Pluto SDR} - модель SDR, разработанная компанией \textbf{Analog Devices} для обучения основам SDR.
 
@@ -11,7 +11,7 @@
     \caption{Внешний вид Adalm Pluto}
 \end{figure}
 
-\section*{Архитектура Adalm Pluto SDR}
+\section{Архитектура Adalm Pluto SDR}
 
 \begin{figure}[H]
     \centering
@@ -19,85 +19,63 @@
     \caption{Архитектура Adalm Pluto}
 \end{figure}
 
-\section*{Описание основных блоков Adalm Pluto}
+\section{Описание основных блоков Adalm Pluto}
 
-\subsection*{\textbf{PA (Power Amplifier)}}
-\begin{description}
-  \item[\textbf{Функция:}] Усиление сигнала.
-\end{description}
+\subsection{PA (Power Amplifier)}
+Назначение: усиление сигнала.
 
-\subsection*{\textbf{LNA (Low Noise Amplifier)}}
-\begin{description}
-  \item[\textbf{Функция:}] Усиление слабого приёмного сигнала с минимальным добавлением шума.
-\end{description}
+\subsection{LNA (Low Noise Amplifier)}
+Назначение: усиление слабого приёмного сигнала с минимальным добавлением шума.
 
-\subsection*{\textbf{ADC / DAC}}
-\begin{description}
-  \item[\textbf{ADC (Analog-to-Digital Conversion):}] оцифровка аналогового сигнала.
-  \item[\textbf{DAC (Digital-to-Analog Conversion):}] преобразование цифровых семплов в аналоговый сигнал.
-\end{description}
+\subsection{ADC / DAC}
+ADC (Analog-to-Digital Conversion): оцифровка аналогового сигнала. Получение отсчетов сигнала.
+DAC (Digital-to-Analog Conversion): преобразование цифровых семплов в аналоговый сигнал.
 
-\subsection*{\textbf{FIR (Finite Impulse Response)}}
-\begin{description}
-  \item[\textbf{Функция:}] детальная фильтрация, коррекция формы спектра.
-\end{description}
+\subsection{FIR (Finite Impulse Response)}
+Назначение: детальная фильтрация, коррекция формы спектра.
 
-\subsection*{\textbf{Mixer}}
-\begin{description}
-  \item[\textbf{TX:}] перенос низкочастотного сигнала на несущую частоту.
-  \item[\textbf{RX:}] перенос высокочастотного сигнала на низкочастотный.
-\end{description}
+\subsection{Mixer}
+Перенос низкочастотного сигнала на несущую частоту или высокочастотного на низкочастотный.
 
-\subsection*{\textbf{Filter}}
-\begin{description}
-  \item[\textbf{TX:}] фильтрация выходного сигнала перед передачей.
-  \item[\textbf{RX:}] фильтрация принимаемого сигнала.
-\end{description}
+\subsection{Filter}
+Фильтрация выходного/входного сигнала.
 
-\subsection*{\textbf{libiio}}
-\begin{description}
-  \item[\textbf{Описание:}] библиотека, которая облегчает работу с устройствами ввода/вывода в \textbf{Linux}. 
-  Она даёт \textbf{API} для обмена данными и управления устройствами.
-\end{description}
+\subsection{libiio}
+Библиотека, которая облегчает работу с устройствами ввода/вывода в \textbf{Linux}. Она даёт \textbf{API} для обмена данными и 
+управления устройствами.
 
-\subsection*{\textbf{Linux Kernel}}
-\begin{description}
-  \item[\textbf{Описание:}] ядро \textbf{Linux}. Управляет железом.
-\end{description}
+\subsection{Linux Kernel (ядро Linux)}
+Назначение: управляет железом.
 
-\subsection*{\textbf{Drivers}}
-\begin{description}
-  \item[\textbf{Описание:}] обеспечение корректной работы Linux с устройствами.
-\end{description}
+\subsection{Drivers}
+Назначение: обеспечение корректной работы Linux с устройствами.
 
-\subsection*{\textbf{Xilinx Zynq}}
-\begin{description}
-  \item[\textbf{Описание:}] семейство микросхем от компании Xilinx. На одном кристалле 
+\subsection{Xilinx Zynq}
+  Семейство микросхем от компании Xilinx. На одном кристалле 
   объединены ARM-процессор, на котором работает Linux, и ПЛИС для более скоростных вычислений. 
-\end{description}
 
 
-\subsection*{\textbf{GNU Radio}}
+\section{GNU Radio}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=1.0\textwidth]{GNURadio.png}
-    \caption{Логотип GNU Radio}
+    \caption{GNU Radio}
 \end{figure}
 
 \textbf{GNU Radio} - это инструмент с открытым исходным кодом для разработки программного обеспечения 
 в сфере программно-определяемого радио. 
 
 Он позволяет при помощи «строительных блоков» создавать конфигурации радиоустройств, не написав ни одной строчки кода, 
-и запускать программы непосредственно с использованием SDR-модулей, например: \textbf{Adalm-Pluto}, \textbf{LimeSDR} и др. \\
+и запускать программы непосредственно с использованием SDR-модулей. \\
 
 В библиотеке имеется широкий спектр функций для цифровой обработки сигналов. Модули написаны на \textbf{C++}, 
 а их взаимодействие реализовано на \textbf{Python}. Приложения можно строить как через \textbf{API GNU Radio}, 
 так и посредством графического интерфейса \textbf{GNU Radio Companion (GRC)}.
 
-\section*{\textbf{Построение схемы в GNU Radio}}
+\section{Построение схемы в GNU Radio}
 
-\subsection*{\textbf{Блок options}}
+\subsection{Блок options}
 
 \begin{figure}[H]
     \centering
@@ -109,7 +87,7 @@
 \textbf{Output Language} — язык, на котором будет сгенерирован код программы. \\
 \textbf{Generate Options} — используемый графический интерфейс.
 
-\subsection*{\textbf{Блок variable}}
+\subsection{Блок variable}
 
 \begin{figure}[H]
     \centering
@@ -120,7 +98,7 @@
 В этом блоке можно задать переменную (почти как в языке программирования). Переменная имеет ID (имя) и значение.  
 Здесь задается \texttt{samp\_rate} (частота дискретизации), равная $2.4 \times 10^6$ Hz.
 
-\subsection*{\textbf{QT GUI Range}}
+\subsection{QT GUI Range}
 
 \begin{figure}[H]
     \centering
@@ -141,7 +119,7 @@
     \item \textbf{Step} — шаг изменения при сдвиге ползунка.
 \end{itemize}
 
-\subsection*{\textbf{PlutoSDR Source}}
+\subsection{PlutoSDR Source}
 
 \begin{figure}[H]
     \centering
@@ -160,7 +138,7 @@
     \item \textbf{Quadrature} — задаём представление сигнала в виде I/Q семплов;
 \end{itemize}
 
-\subsection*{\textbf{Low Pass Filter}}
+\subsection{Low Pass Filter}
 
 \begin{figure}[H]
     \centering
@@ -179,7 +157,7 @@
     \item \textbf{Cutoff Freq} — полоса 100 кГц (ширина FM сигнала).
 \end{itemize}
 
-\subsection*{\textbf{QT GUI Frequency Sink}}
+\subsection{QT GUI Frequency Sink}
 
 \begin{figure}[H]
     \centering
@@ -198,7 +176,7 @@
     \item \textbf{Bandwidth} — полоса частот захвата.
 \end{itemize}
 
-\subsection*{\textbf{QT GUI Time Sink}}
+\subsection{QT GUI Time Sink}
 
 \begin{figure}[H]
     \centering
@@ -216,7 +194,7 @@
     \item \textbf{Autoscale} — нужно ли масштабировать сигнал по вертикали.
 \end{itemize}
 
-\subsection*{\textbf{WBFM Receive}}
+\subsection{WBFM Receive}
 
 \begin{figure}[H]
     \centering
@@ -235,7 +213,7 @@
 
 На выходе — звуковой сигнал.
 
-\subsection*{\textbf{Audio Sink}}
+\subsection{Audio Sink}
 
 \begin{figure}[H]
     \centering

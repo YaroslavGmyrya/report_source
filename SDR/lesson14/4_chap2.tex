@@ -1,0 +1,256 @@
+% \chapter{Практическая часть}
+% \label{ch:chap2}
+
+% \section{Match filter}
+
+% \begin{lstlisting}
+% int16_t* match_filter(int16_t* samples, int samples_count, int L, double* h, int* size){
+%     *size = samples_count;
+%     int16_t* new_samples = (int16_t*)malloc(samples_count * sizeof(int16_t)); 
+
+%     //convolve
+%     for(int n = 0; n < samples_count; ++n){
+%         int16_t tmp = 0;
+%         for(int m = 0; m < L; ++m){
+%             if (n - m >= 0){
+%                 tmp += samples[n-m]*h[m];
+%             }
+%         }
+
+%         new_samples[n] = tmp;
+      
+%     }
+
+%     return new_samples;
+% }
+
+% \end{lstlisting}
+
+% Функция принимает массив семплов, размер этого массива, число L, которое показывает, сколько семплов приходится на бит, ИХ h, переменную
+% size, в которой вернется размер массива на выходе. Функция выполняет дискретную свертку входного сигнала с ИХ.
+
+% \section{Downsampling}
+
+% \begin{lstlisting}
+% int16_t* down_sampling(int16_t* samples, int samples_count, int L, int start){
+%     int symbols_size = samples_count / L - start + 1;
+
+%     int16_t* symbols = (int16_t*)malloc(symbols_size * sizeof(int16_t));
+    
+%     for(int i = start; i < symbols_size; ++i){
+%         symbols[i] = samples[i*L];
+%     }
+
+%     return symbols;
+
+% }
+% \end{lstlisting}
+
+% Функция принимает массив исходных семплов, размер массива, число L, которое указывает на то, с каким периодом мы будем делать 
+% downsampling (сохраняем только каждое L-ое значение). Параметр start - индекс, с которого функция начнет брать каждый L-ый элемент.
+% В функции итерируемся по новому массиву и заполняем его каждым L-ым значением.
+
+% \section{downscale}
+
+% \begin{lstlisting}
+% double max(int16_t* arr, int arr_size){
+%     double max = -__DBL_MAX__;
+%     for(int i = 0; i < arr_size; ++i){
+%         if(arr[i] > max){
+%             max = arr[i];
+%         }
+%     }
+
+%     return max;
+% }
+
+% double* downscale(int16_t* samples, int samples_count){
+%     double* down_scale_samples = (double*)malloc(samples_count * sizeof(double));
+
+%     double max_value = max(samples, samples_count);
+
+%     for(int i = 0; i < samples_count; i+=2){
+%         down_scale_samples[i] = samples[i] / max_value;
+%     }
+
+%     return down_scale_samples;
+% }
+% \end{lstlisting}
+
+% Для того, чтобы дальше работать с символами, нужно нормализовать их, т.е привести к значениям, которые будут близки к значениям из
+% отрезка [-1;1]. В качестве нормирующего коэффициента будет использоваться символ с наибольшим значением. Функция max используется
+% для поиска символа с максимальным значением. В функции downscale итерируемся по исходному массиву символов и делим каждый на максимальное
+% значение среди символов.
+
+% \section{Quantization}
+
+% \begin{lstlisting}
+% int16_t* BPSK_quantizater(double* symbols, int symbols_size){
+%     int16_t* rounded_symbols = (int16_t*)malloc(symbols_size * sizeof(int16_t));
+
+%     int point0[] = {-1, 0};
+%     int point1[] = {1, 0};
+
+%     double distance0 = 0, distance1 = 0;
+
+%     double dx = 0,dy = 0;
+
+%     for(int i = 0; i < symbols_size; i+=2){
+%         dx = point0[0]-symbols[i];
+%         dy = point0[1]-symbols[i+1];
+
+%         distance0 = sqrt(dx*dx + dy*dy);
+
+%         dx = point1[0]-symbols[i];
+%         dy = point1[1]-symbols[i+1];
+
+%         distance1 = sqrt(dx*dx + dy*dy);
+
+%         if(distance0 > distance1){
+%             rounded_symbols[i] = 1;
+%             rounded_symbols[i+1] = 0;
+%         }else{
+%             rounded_symbols[i] = -1;
+%             rounded_symbols[i+1] = 0;
+%         }
+%     }
+
+%     return rounded_symbols;
+    
+% }
+% \end{lstlisting}
+
+% Функция принимает массив искаженных символов и размер массива. В функции в виде массивов размером в 2 элемента задаются истинные точки,
+% которые есть в BPSK созвездии. Далее в цикле перебираем символы (точки на созвездии) и вычисляем расстояние между искаженной точкой
+% и заданными истинными точками. В результирующий массив запишем координаты истинной точки, с которой искаженная точка имеет наименьшее расстояние.
+
+% \section{Demapper}
+
+% \begin{lstlisting}
+% int8_t* BPSK_demodulator(int16_t* symbols, int symbols_size){
+%     int bits_size = symbols_size/2;
+
+%     int8_t* bits = (int8_t*)malloc(bits_size * sizeof(int8_t));
+
+%     int j = 0;
+
+%     for(int i = 0; i < symbols_size; i+=2){
+%         if(symbols[i] == 1){
+%             bits[j++] = 1;
+%         } else{
+%             bits[j++] = 0;
+%         }
+%     }
+
+%     return bits;
+% }
+% \end{lstlisting}
+
+% Функция принимает массив округленных символов и размер массива. Функция итерируется по массиву и с помощью условий выбирает,
+% какой бит сопоставить символу.
+
+% \section{Test}
+
+% Для проверки корректности работы приемника сгенерируем семплы на стороне передатчика и запишем в файл, а на приемной стороне
+% считаем файл и попытаемся превратить семплы в информацию, которую отправлял передатчик. Попытаемся передать символ "H"
+
+% \begin{lstlisting}
+% int main(){
+    
+%     size_t samples_count = 0;
+
+%     int16_t* samples = read_pcm("bpsk_samples.pcm", &samples_count);
+
+%     if(samples == nullptr){
+%         printf("File not found!\n");
+%         exit(1);
+%     }
+
+%     printf("samples:\n");
+
+%     for(int i = 0; i < samples_count; ++i){
+%         printf("%d ", samples[i]);
+%     }
+
+%     printf("\n");
+
+%     int h[] = {1,1,1,1,1,1,1,1,1,1};
+
+%     int conv_size = 0;
+%     int* conv = match_filter(samples, samples_count, 10, h, &conv_size);
+
+%     printf("After convolve:\n");
+
+%     for(int i = 0; i < conv_size; ++i){
+%         printf("%d ", conv[i]);
+%     }
+
+%     printf("\n");
+
+
+%     int* ds_samples = down_sampling(conv, samples_count, 10, 0);
+
+%     printf("Samples after down sampling:\n");
+
+%     for(int i = 0; i < conv_size/10; ++i){
+%         printf("%d ", ds_samples[i]);
+%     }
+
+%     printf("\n");
+
+%     double* down_scale_samples = down_scaler(ds_samples, samples_count/10);
+
+%     printf("Samples after downscaling:\n");
+
+%     for(int i = 0; i < conv_size/10; ++i){
+%         printf("%f ", down_scale_samples[i]);
+%     }
+
+%     printf("\n");
+
+
+%     int16_t* q_samples = BPSK_quantizater(down_scale_samples, samples_count/10);
+
+%     printf("rounded symbols:\n");
+
+%     for(int i = 0; i < samples_count/10; ++i){
+%         printf("%d ", q_samples[i]);
+%     }
+
+%     printf("\n");
+
+%     int8_t* bits1 = BPSK_demodulator(q_samples, samples_count/10);
+
+%     printf("bits:\n");
+
+%     for(int i = 0; i < samples_count/20; ++i){
+%         printf("%d ", bits1[i]);
+%     }
+
+%     printf("\n");
+
+%     int str_len = 0;
+%     char* str = btos(bits1, samples_count/20, &str_len);
+
+%     printf("string: %s\n", str);
+
+%     return 0;
+% }
+% \end{lstlisting}
+
+% \begin{figure}[H]
+%     \centering
+%     \includegraphics[width=1.0\textwidth]{rx_string.png}
+%     \caption{Процесс обработки принятого сигнала}
+% \end{figure}
+
+% Приемнику удалось верно преобразовать семплы в текст, значит, удалось верно реализовать логику работы приемника. \\
+
+% \section{Сигнал на выходе match filter}
+
+
+% \section{Глазковая диаграмма}
+
+
+
+% \endinput

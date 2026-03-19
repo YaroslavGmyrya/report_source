@@ -1,0 +1,70 @@
+\chapter{Практика}
+
+\section{Задача}
+С помощью Wireshark изучить пакеты DHCP
+
+\section{DHCP Discover}
+
+Клиент обращается к DHCP серверу и просит IP, DNS, маску и т.д
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1.0\textwidth]{dis.png}
+    \caption{DHCP Discover}
+\end{figure}
+
+Основные поля:
+
+\begin{enumerate}
+    \item Client IP address - ip адрес клиента, но т.к его нет, то отправляется просто 0.0.0.0
+    \item Client MAC address - MAC-адрес клиента. Отправляется, чтобы DHCP сервер знал, кому отправить offer
+    \item Requested IP address - ip, который хотел бы получить клиент.
+\end{enumerate}
+
+\section{DHCP Offer}
+
+DHCP сервер отвечает клиенту и отправляет IP, который он может предложить.
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1.0\textwidth]{of.png}
+    \caption{DHCP Offer}
+\end{figure}
+
+Основные поля:
+
+\begin{enumerate}
+    \item Your IP address - адрес, который предлагает DHCP сервер (тот же, что и просили)
+    \item DHCP server ID - адрес DHCP сервера
+    \item Address Lease Time - время аренды адреса
+    \item Renewal Time Value - время, через которое будет требоваться продление. Обозначается как $T_1$, обычно равно 50\% от времени аренды.
+    \item Rebinding Time Value - время, когда повторно будет происходить продление, если в первый раз не получилоь продлить время. Обозначается как $T_2$, обычно равно 87.5\% от времени аренды.
+\end{enumerate}
+
+\section{DHCP Request}
+
+Клиент отвечает DHCP серверу на предложение (берет IP или нет)
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1.0\textwidth]{req.png}
+    \caption{DHCP Request}
+\end{figure}
+
+Основные поля:
+
+\begin{enumerate}
+    \item Requested IP address - адрес, который клиент соглашается взять.
+\end{enumerate}
+
+\section{DHCP ACK}
+
+DHCP сервер подтверждает передачу IP клиентскому устройству
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=1.0\textwidth]{ack.png}
+    \caption{DHCP Request}
+\end{figure}
+
+\endinput

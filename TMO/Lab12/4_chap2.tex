@@ -1,0 +1,74 @@
+\chapter{Ход работы}
+\label{ch:chap2}
+
+\section{Получение метрик блоков СМО}
+
+В MATLAB Simulink есть удобный инструментарий для снятия метрик с блоков СМО. У каждого блока свой набор метрик. Метрики для каждого 
+блока изображены ниже
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{stats.png}
+    \caption{Метрики для блоков СМО}
+\end{figure}
+
+После проставления галочек возле тех метрик, которые нам нужны, возле блоков появятся дополнительные выходы, на которые будут подаваться
+подсчитанные метрики. Метрики можно выводить на блок Scope, чтобы визуализировать метрики на графики.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{out_stats.png}
+    \caption{Вывод метрик}
+\end{figure}
+
+\section{Анализ метрик генератора заявок}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{gen_metrics.png}
+    \caption{Метрики генератора заявок}
+\end{figure}
+
+Метрика d - кол-во заявок, которое покинуло блок, w - среднее время между генерациями заявок, pe - кол-во заявок, которое сгенерировано,
+но находятся в системе (допустим, очередь уже полная и не может взять заявку, тогда эта заявка остается в блоке и ожидает освобождения 
+очереди).
+
+\section{Анализ метрик очереди заявок}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{q_metrics.png}
+    \caption{Метрики очереди}
+\end{figure}
+
+Здесь dq - кол-во вышедших заявок, n - текущее кол-во заявок в блоке, l - средняя длина очереди, wq - среднее время пребывания заявки в очереди.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{q_ex.png}
+    \caption{Метрики очереди}
+\end{figure}
+
+Эта метрика показывает кол-во заявок, исключенных из очереди принудительно, т.е сколько заявок было потеряно.
+
+\section{Анализ метрик сервера}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{s_metrics1.png}
+    \caption{Метрики сервера}
+\end{figure}
+
+Здесь util - степень использования сервера, pes - кол-во заявок, готовых к обслуживанию, но пока не поступивших на обслуживание,
+np - кол-во ожидающих заявок во внутренней очереди сервера, ws - среднее время обслуживания.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{s_metrics2.png}
+    \caption{Метрики сервера}
+\end{figure}
+
+ds - кол-во вышедших из свервера заявок.
+
+
+\endinput

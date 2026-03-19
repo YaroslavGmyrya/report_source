@@ -1,0 +1,40 @@
+\chapter{Практика}
+
+\section{Задание}
+
+Узнать MAC адрес своего сетевого устройства.
+
+\section{Ход работы}
+
+\subsection{Ubuntu}
+
+Выполним в терминале команду:
+
+\begin{lstlisting}
+    ip link show
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{ub.png}
+    \caption{Результат работы команды}
+\end{figure}
+
+Для каждого интерфейса (в том числе и виртуального) можно увидеть MAC адрес.
+
+\subsection{Windows}
+
+Выполним в командной строке команду:
+
+\begin{lstlisting}
+    ipconfig /all
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=0.75\textwidth]{win.png}
+    \caption{Результат работы команды}
+\end{figure}
+
+Можно увидеть полную информацию об интерфейсах, в том числе и MAC адрес.
+\endinput

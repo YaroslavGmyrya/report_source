@@ -1,0 +1,48 @@
+\chapter{Практика}
+
+\section{Задача}
+Проанализировать пакеты DNS в Wireshark.
+
+\section{Анализ с помощью Wireshark}
+
+Выполним 
+
+\begin{lstlisting}
+    sudo nslookup yandex.ru
+\end{lstlisting}
+
+А в Wireshark будем ловить пакеты (в фильтре можно установить dns).
+
+\subsection{Запрос}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.8\textwidth]{whr.png}
+    \caption{Запрос к серверу}
+\end{figure}
+
+Важные поля:
+
+\begin{enumerate}
+    \item Questions - число запросов
+    \item Queries - запись, к которой нужно найти адрес.
+\end{enumerate}
+
+\subsection{Ответ}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.8\textwidth]{wh.png}
+    \caption{Ответ от сервера}
+\end{figure}
+
+Важные поля:
+
+\begin{enumerate}
+    \item Answer RRs - число основных записей в ответе.
+    \item Authority RRs - число авторитетных записей.
+    \item Additional RRs - число доп. записей.
+    \item Answers, Authoritative nameservers, Additional records - здесь перечислены записи, которые вернул сервер. Самая важная информация в каждой записи - IP.
+\end{enumerate}
+
+\endinput

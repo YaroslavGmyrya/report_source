@@ -1,0 +1,64 @@
+\chapter{Практика}
+\label{ch:intro}
+
+\section{timing error detection}
+
+\section{Описание}
+
+Этот блок - одна из составных частей схемы Гарднера. Ее задача заключается в том,
+чтобы рассчитать некоторый коэффициент, который указывает на ошибку или сдвиг,
+который необходимо сделать, чтобы попасть в нужный семпл. В идеале, если изобразить
+эти ошибки на графике в зависимости от сдвига в семплах (от 0 до 10), то должны получить
+кривую, напоминающую синус (позже проверим)
+
+\subsection{Реализация}
+
+\begin{lstlisting}
+std::vector<int16_t> synchronizer::gardner(const std::vector<std::complex<double>> &samples, int const L)
+{
+    /*define start parameters*/
+    double Kp = 4;
+    double BnTs = 0.000005;
+
+    double zeta = std::sqrt(2) / 2;
+    double theta = (BnTs / 10) / (zeta + 1 / (4 * zeta));
+    double den = (1 + 2 * zeta * theta + theta * theta) * Kp;
+
+    double K1 = -4 * zeta * theta / den;
+    double K2 = -4 * theta * theta / den;
+
+    double p1 = 0;
+    double p2 = 0;
+
+    int offset = L / 2;
+    double e = 0;
+
+    int n = 0;
+
+    std::vector<int16_t> offset_list;
+
+    int max_i = samples.size() % L == 0 ? samples.size() / L : samples.size() / L + 1;
+
+    for (int i = 0; i < max_i; ++i)
+    {
+        n = offset + L * i;
+        /*calculate e - timing error*/
+        e = (samples[n + L].real() - samples[n].real()) * samples[n + L / 2].real() +
+            (samples[n + L].imag() - samples[n].imag()) * samples[n + L / 2].imag();
+
+    }
+}
+\end{lstlisting}
+
+На Python визуализируем e, чтобы убедиться, что ted вычисляется верно
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1.0\textwidth]{real_avge.png}
+    \caption{TED}
+\end{figure}
+
+График напоминает синус, что означает правильность работы TED
+
+
+\endinput

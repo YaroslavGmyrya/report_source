@@ -1,0 +1,94 @@
+\chapter{Практика}
+
+\section{Подготовка к построению модели}
+
+Перед построением модели построим попарные графики зависимости признаков друг от друга с помощью библиотеки seaborn
+
+\begin{lstlisting}
+    sns.pairplot(
+    df[pairplot_features + ["landmass"]],
+    hue="landmass",
+    diag_kind="hist"
+)
+\end{lstlisting}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{10.png}
+    \caption{Попарная зависимость признаков}
+\end{figure}
+
+По графикам можно сказать, что признаки не обладают хорошей "отделяемостью", что очень скажется на качестве модели.
+
+
+\section{Построение модели}
+
+Построим модель несколько раз, но с разным количеством соседей, чтобы определить оптимальное кол-во соседей. На каждой итерации будем
+высчитывать accuracy модели и сопоставлять с k
+
+\begin{lstlisting}
+for k in k_values:
+    model = Pipeline(steps=[
+        ("preprocessor", preprocessor),
+        ("classifier", KNeighborsClassifier(n_neighbors=k))
+    ])
+    
+    model.fit(X_train, y_train)
+    
+    y_train_pred = model.predict(X_train)
+    y_test_pred = model.predict(X_test)
+    
+    train_scores.append(accuracy_score(y_train, y_train_pred))
+    test_scores.append(accuracy_score(y_test, y_test_pred))
+\end{lstlisting}
+
+Получившийся график:
+
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{20.png}
+    \caption{Зависимость точности модели от k}
+\end{figure}
+
+Точность модели колеблится около 0.5, что очень плохо. По сути модель просто на удачу подбрасывает монетку.
+Оптимальное значение accuracy достигается при k=2, т.к при k=2 точность максимально отклоняется от 0.5 (хоть и в отрицательную сторону). \\
+
+Ошибка cross-validation:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{30.png}
+    \caption{Зависимость ошибки cross-validation от k}
+\end{figure}
+
+Теперь построим модель с k=2 и выведем report по модели:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{40.png}
+    \caption{Отчет по итоговой модели}
+\end{figure}
+
+Precision (точность) - оценка, показывающая, насколько можно доверять предсказаниям этого класса. Вычисляется как $\frac{TP}{TP+FP}$.\\
+
+Recall (полнота), показывает, насколько хорошо модель находит этот класс. Вычисляется как $\frac{TP}{TP+FN}$.\\
+
+F1 оценка - показывает общую адекватность модели по классу. Вычисляется как $2 * \frac{precision*recall}{precision+recall}$. \\
+
+macro avg - среднее по классам.\\
+
+weight avg - среднее с учётом количества объектов.
+
+
+
+
+
+
+
+
+
+
+
+
+\endinput

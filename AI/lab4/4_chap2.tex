@@ -1,0 +1,39 @@
+\chapter{Практика}
+
+\section{Построение модели}
+
+Построим модель несколько раз с разными значениями max\_depth и max\_features и вычислим MSE оценку ошибки, чтобы найти оптимальные значения для модели:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{10.png}
+    \caption{MSE для max\_depth}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{20.png}
+    \caption{MSE для max\_features}
+\end{figure}
+
+Отчет по модели
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{40.png}
+    \caption{Отчет по модели}
+\end{figure}
+ 
+Оптимальные значения max\_depth=4, max\_features = 15. \\
+
+Построим итоговую модель с параметрами выше:
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{30.png}
+    \caption{Дерево}
+\end{figure}
+
+По дереву можно определить логику, по которой модель будет принимать решения.
+
+\endinput
