@@ -15,7 +15,6 @@
 \usepackage{float}
 \usepackage{listings}
 \usepackage{xcolor} 
-\usepackage{pdfpages}
 \setdefaultlanguage[indentfirst=true,forceheadingpunctuation=false]{russian}
 \setotherlanguages{english}
 
@@ -198,7 +197,7 @@ isbn=false,                                         % Не показывать 
 
 \begin{document}
 
-% \input{1_title}                                     % Титульник
+\input{1_title}                                     % Титульник
 
 \newpage % Переходим на новую страницу
 \setcounter{page}{2} % Начинаем считать номера страниц со второй
@@ -231,10 +230,10 @@ isbn=false,                                         % Не показывать 
 
 \lstset{style=mystyle}
 
-\input{1_chap1}                                     % Введение
-\input{2_chap2}                                     % Первая глава
-% \input{4_chap2}                                     % Вторая глава
-% \input{5_chap3}                                     % Третья глава
+\input{2_intro}                                     % Введение
+\input{3_chap1}                                     % Первая глава
+\input{4_chap2}                                     % Вторая глава
+\input{5_chap3}                                     % Третья глава
 
 % \printbibliography[title=Список использованных источников] % Автособираемый список литературы
 

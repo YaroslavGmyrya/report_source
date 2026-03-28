@@ -1,0 +1,105 @@
+\chapter{Практика}
+
+\section{Создание и настройка vlan}
+
+\begin{lstlisting}[language=C, caption={Пример создания/настройки vlan}]
+config
+vlan 10
+name "network 10.10.10.0"
+exit
+vlan 20
+name "network 10.20.20.0"
+exit
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Добавление интерфейсов в vlan}
+
+\begin{lstlisting}[language=C, caption={Пример добавления интерфейсов в vlan}]
+interface gigabitethernet 1/0/1-2
+mode switchport
+switchport mode access
+switchport access vlan 10
+exit
+
+interface gigabitethernet 1/0/11-12
+mode switchport
+switchport mode access
+switchport access vlan 20
+exit
+
+do commit
+do confirm
+
+\end{lstlisting}
+
+\section{Настройка trunk порта}
+
+\begin{lstlisting}[language=C, caption={Пример настройки trunk порта}]
+interface gigabitethernet 1/0/6
+mode switchport
+switchport mode trunk
+switchport trunk allowed vlan add 10,20
+exit
+\end{lstlisting}
+
+Результат:
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{vlans.png}
+    \caption{Таблица vlan}
+\end{figure}
+
+\section{Настройка sub-интерфейса на роутере}
+
+\begin{lstlisting}[language=C, caption={Пример настройки sub-интерфейсов}]
+# создание sub-интерфейса
+interface gigabitethernet 1/0/1.10
+
+# отключение firewall и настройка ip адреса
+ip firewall disable
+ip address 192.168.10.1/24
+exit
+
+# аналогично для vlan 20
+interface gigabitethernet 1/0/1.20
+ip firewall disable
+ip address 172.16.20.1/24
+exit
+
+# сохраняем изменения
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка ip на ПК}
+
+\begin{lstlisting}[language=C, caption={Пример настройки ip на пк}]
+VPC1# ip 192.168.10.2/24 192.168.10.1
+VPC2# ip 192.168.10.3/24 192.168.10.1
+VPC3# ip 172.16.20.2/24 172.16.20.1
+VPC4# ip 172.16.20.3/24 172.16.20.1
+\end{lstlisting}
+
+\section{Проверка работоспособности}
+
+Если все настроено верно, то ПК1 должен пинговать ПК3, а ПК3 должен пинговать ПК1
+
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{ping1.png}
+    \caption{Проверка}
+\end{figure}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{ping2.png}
+    \caption{Проверка}
+\end{figure}
+
+ПК успешно пингуют друг друга, значит, всё настроено верно.
+
+\endinput

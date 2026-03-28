@@ -1,0 +1,13 @@
+\xpginauxfiletrue 
+\selectlanguage *[indentfirst=true,forceheadingpunctuation=false]{russian}
+\contentsline {chapter}{\chapternumberline {1}Введение}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Цель}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Задачи}{3}{section.1.2}%
+\contentsline {chapter}{\chapternumberline {2}Практика}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Настройка интерфейсов роутера}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Настройка ip на ПК}{6}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Запуск RIP и анонс сети}{7}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Изменения в таблице маршрутизации}{8}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Реакция RIP на изменение топологии}{8}{section.2.5}%
+\contentsline {chapter}{\chapternumberline {3}Вывод}{10}{chapter.3}%
+\xpginauxfilefalse 

@@ -1,0 +1,97 @@
+\chapter{Практика}
+
+\section{Просмотр vlan}
+
+Для просмотра конфигурации vlan необходимо в режиме пользователя выполнить
+
+\begin{lstlisting}[language=C, caption={Просмотр конфигурации vlan}]
+show vlans
+\end{lstlisting}
+
+Результатом выполнения команды является таблица
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{vlan_table.png}
+    \caption{Пример таблицы vlan}
+\end{figure}
+
+\section{Создание vlan}
+
+\begin{lstlisting}[language=C, caption={Пример создания vlan}]
+    # переход в режим конфигурации
+    configure
+    # создание vlan
+    vlan 10,20,30,40,50
+\end{lstlisting}
+
+\section{Удаление vlan}
+
+\begin{lstlisting}[language=C, caption={Пример удаления vlan}]
+    # переход в режим конфигурации
+    configure
+    # удаление vlan
+    no vlan 40
+\end{lstlisting}
+
+\section{Привязка vlan к портам доступа}
+
+\begin{lstlisting}[language=C, caption={Пример привязки портов в режиме access к vlan}]
+
+# переходим в режим конфигурации
+configure
+
+# выбираем интерфейсы
+interface gigabitethernet 1/0/11-12
+
+# переводим интерфейс в режим порта
+mode switchport
+
+# переводим порт в режим доступа
+switchport mode access
+
+# указываем vlan, который будет на данном порту
+switchport access vlan 20
+
+# вносим изменения
+do commit
+
+# окончательно вносим изменения
+do confirm
+
+# проверка
+do show vlans
+\end{lstlisting}
+
+У остальных портов настройка идентична.
+
+\section{Привязка vlan к транковым портам}
+
+\begin{lstlisting}[language=C, caption={Пример привязки портов в режиме access к vlan}]
+
+# переходим в режим конфигурации
+configure
+
+# выбираем интерфейсы
+interface gigabitethernet 1/0/7
+
+# переводим интерфейс в режим порта
+mode switchport
+
+# переводим порт в режим транка
+switchport mode trunk
+
+# указываем vlans, которым будет разрешено проходить через порт 
+switchport access trunk allowed vlan add 10,20
+
+# вносим изменения
+do commit
+
+# окончательно вносим изменения
+do confirm
+
+# проверка
+do show vlans
+\end{lstlisting}
+
+\endinput

@@ -1,0 +1,168 @@
+\chapter{Практика}
+
+\section{Настройка имени}
+
+\begin{lstlisting}[language=C, caption={Пример настройки имени устройства}]
+# переход в режим конфигурации
+configure
+# задаем имя
+hostname R1
+# принимаем настройки
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка времени}
+
+\begin{lstlisting}[language=C, caption={Пример настройки времени}]
+# В режиме пользователя
+set date 16:49:00 25 March 2026
+# вносим изменения
+commit
+# проверка
+show date
+# переходим в режим конфигурации
+configure
+# задаем часовой пояс
+clock timezone gmt +7
+# вносим изменения
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка IP на интерфейсе}
+
+\begin{lstlisting}[language=C, caption={Пример настройки IP на интерфейсе}]
+# переход в режим конфигурации
+configure
+# переход к настройке интерфейса gi 1/0/1
+interface gigabitethernet 1/0/1
+# задаем ip с маской
+ip address 192. 168. 100. 1/24
+# отключаем firewall
+ip firewall disable
+# подтверждаем изменения
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка IP на интерфейсе}
+
+\begin{lstlisting}[language=C, caption={Пример настройки IP на интерфейсе}]
+# переход в режим конфигурации
+configure
+# переход к настройке интерфейса gi 1/0/1
+interface gigabitethernet 1/0/1
+# задаем ip с маской
+ip address 192. 168. 100. 1/24
+# отключаем firewall
+ip firewall disable
+# подтверждаем изменения
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Создание и настройка Loopback интерфейса}
+
+\begin{lstlisting}[language=C, caption={Пример создания и настройки Loopback интерфейса}]
+# переход в режим конфигурации
+configure
+# переход к настройке интерфейса Loopback 1
+interface Loopback 1
+# задаем ip с маской
+ip address 8.8.8.8/32
+exit
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Создание и настройка sub интерфейса}
+
+\begin{lstlisting}[language=C, caption={Пример создания и настройки sub интерфейса}]
+configure
+# переходим в настройку интерфейса gi 1/0/1. Через точку указан vlan для sub интерфейса
+interface gigabitethernet 1/0/1.50
+# задаем ip
+ip address 172. 16. 25. 1/24
+# отключаем firewall
+ip firewall disable
+\end{lstlisting}
+
+\section{Создание и настройка пользователя}
+
+\begin{lstlisting}[language=C, caption={Пример создания и настройки пользователя}]
+configure
+# создаем пользователя master и переходим к его настройке
+username master
+# задаем пароль
+password eltex
+# задаем уровень привилегий
+privilege 14
+\end{lstlisting}
+
+\section{Включение ssh сервера}
+
+\begin{lstlisting}[language=C, caption={Пример включения ssh сервера}]
+configure
+ip ssh server
+\end{lstlisting}
+
+
+\section{Настройка IP на ПК (Debian)}
+
+Чтобы посомтреть доступные интерфейсы и их параметры необходимо выполнить команду ip a:
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{linux.png}
+    \caption{Результат работы команды}
+\end{figure}
+
+Настройка интерфейсов проиводится в файле /etc/network/interfaces. Файл необходимо отредактировать следующим образом:
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{linux.png}
+    \caption{Настройка интерфейсов}
+\end{figure}
+
+Проверим наличие связи между ПК и роутером:
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{linux2.png}
+    \caption{Проверка сетевой связности}
+\end{figure}
+
+БАГ: почему-то связь устанавливается только при подключении к интерфейсу gi 1/0/3, хотя на роутере настраивали gi 1/0/1.
+
+\section{Подключение к роутеру по ssh}
+
+Для подключения по ssh необходимо в терминале ввести команду ssh <username>@<ip\_address>. В нашем случае необходимо
+ввести команду ssh admin@192.168.100.1
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{linux3.png}
+    \caption{Подключение по ssh}
+\end{figure}
+
+\section{Настройка баннеров}
+
+\begin{lstlisting}[language=C, caption={Пример включения ssh сервера}]
+configure
+# баннер перед входом
+banner login Router-R1
+# баннер после входа
+banner exec «Connect Router R1»
+do commit
+do confirm
+\end{lstlisting}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{banners.png}
+    \caption{Пример работы баннеров}
+\end{figure}
+
+\endinput

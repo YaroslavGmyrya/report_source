@@ -1,0 +1,19 @@
+\xpginauxfiletrue 
+\selectlanguage *[indentfirst=true,forceheadingpunctuation=false]{russian}
+\contentsline {chapter}{\chapternumberline {1}Введение}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Цель}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Задачи}{3}{section.1.2}%
+\contentsline {chapter}{\chapternumberline {2}Практика}{4}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Настройка имени}{4}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Настройка времени}{4}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Настройка IP на интерфейсе}{4}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Настройка IP на интерфейсе}{5}{section.2.4}%
+\contentsline {section}{\numberline {2.5}Создание и настройка Loopback интерфейса}{5}{section.2.5}%
+\contentsline {section}{\numberline {2.6}Создание и настройка sub интерфейса}{6}{section.2.6}%
+\contentsline {section}{\numberline {2.7}Создание и настройка пользователя}{6}{section.2.7}%
+\contentsline {section}{\numberline {2.8}Включение ssh сервера}{6}{section.2.8}%
+\contentsline {section}{\numberline {2.9}Настройка IP на ПК (Debian)}{6}{section.2.9}%
+\contentsline {section}{\numberline {2.10}Подключение к роутеру по ssh}{8}{section.2.10}%
+\contentsline {section}{\numberline {2.11}Настройка баннеров}{8}{section.2.11}%
+\contentsline {chapter}{\chapternumberline {3}Вывод}{9}{chapter.3}%
+\xpginauxfilefalse 

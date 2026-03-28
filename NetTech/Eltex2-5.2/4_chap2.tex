@@ -1,0 +1,149 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейсов роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+#R1
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.100.1/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 172.16.100.1/30
+ip firewall disable
+exit
+
+1interface gigabitethernet 1/0/3
+ip address 192.168.0.1/23
+ip firewall disable
+exit
+
+do commit
+do confirm
+
+#R2
+configure
+
+interface gigabitethernet 1/0/1
+ip address 10.10.100.2/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 192.168.100.2/30
+ip firewall disable
+exit
+
+1interface gigabitethernet 1/0/3
+ip address 10.10.0.1/23
+ip firewall disable
+exit
+
+do commit
+do confirm
+
+#R3
+configure
+
+interface gigabitethernet 1/0/1
+ip address 172.16.100.2/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 10.10.100.1/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 192.16.0.1/23
+ip firewall disable
+exit
+
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка ip на ПК}
+
+\begin{lstlisting}[language=C, caption={Пример настройки ip на ПК}]
+#VPC1
+ip 192.168.1.0/23 192.168.0.1
+#VPC2
+ip 10.10.1.0/23 10.10.0.1
+#VPC3
+ip 172.16.1.0/23 172.16.0.1
+\end{lstlisting}
+
+\section{Запуск RIP и анонс сети}
+
+\begin{lstlisting}[language=C, caption={Пример запуска RIP и анонса сети}]
+Router-left# configure
+
+# создание процесса RIP
+Router-left(config)# router rip
+# анонсируем сеть (рассылаем остальным)
+Router-left(config-rip)# network 192.168.0.0/23
+# запускаем RIP
+Router-left(config-rip)# enable
+
+Router-left(config-rip)# exit
+Router-left(config)# do commit
+Router-left(config)# do confirm
+
+Router-right# configure
+Router-right(config)# router rip
+Router-right(config-rip)# network 10.10.0.0/23
+Router-right(config-rip)# enable
+
+Router-right(config-rip)# exit
+Router-right(config)# do commit
+Router-right(config)# do confirm
+
+Router-up# configure
+Router-up(config)# router rip
+Router-up(config-rip)# network 172.16.0.0/23
+Router-up(config-rip)# enable
+
+Router-up(config-rip)# exit
+Router-up(config)# do commit
+Router-up(config)# do confirm
+\end{lstlisting}
+
+\section{Изменения в таблице маршрутизации}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{rt.png}
+    \caption{Таблица маршрутизации}
+\end{figure}
+
+У каждого маршрутизатора появится в таблице по 2 новых записи. У записей тип R, значит, они получены через RIP. \\
+
+
+\section{Реакция RIP на изменение топологии}
+
+Протоколы динамической маршрутизации обязаны реагировать на изменения в сети (добавление/удаление новых устройств, соединений).
+Чтобы проверить это запустим команду ping -t, которая будет выполняться бесконечно, и удалим соединение R1-R2.
+Пинг будет сыпать ошибки.
+Если RIP работает корректно, то через какое-то время (по дефолту 30 секунд) сеть должна восстановиться и пинг будет проходить успешно.
+
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{ping.png}
+    \caption{Ping}
+\end{figure}
+
+Можно заметить, что пинг сначала проходил, потом стал сыпать ошибки (удалили соединение), а потом снова стал проходить.
+Из этого можно сдедать вывод о том, что RIP работает корректно.
+
+
+
+
+
+\endinput

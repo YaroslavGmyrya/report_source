@@ -1,0 +1,70 @@
+\chapter{Практика}
+
+\section{Создание и настройка vlan}
+
+\begin{lstlisting}[language=C, caption={Пример создания/настройки vlan}]
+configure
+
+# создаем vlan
+vlan 10
+# задаем имя
+name "nw 10.10.10.0"
+
+exit
+
+vlan 20
+name "nw 10.20.20.0"
+
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Добавление интерфейсов в vlan}
+
+\begin{lstlisting}[language=C, caption={Пример создания/настройки vlan}]
+configure
+
+# выбираем интерфейсы
+interface gigabitethernet 1/0/1-2
+
+# переводим интерфейс в режим порта
+mode switchport
+
+# переводим порт в режим доступа
+switchport mode access
+
+# добавляем в vlan
+switchport access vlan 10
+
+# то же самое для других интерфейсов
+interface gigabitethernet 1/0/11-12
+mode switchport
+switchport mode access
+switchport access vlan 20
+
+# принимаем изменения
+do commit
+do confirm
+
+\end{lstlisting}
+
+\section{Добавление и настройка bridge}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{bridge.png}
+    \caption{Пример настройки bridge}
+\end{figure}
+
+\section{Настройка ip на ПК}
+
+\begin{lstlisting}[language=C, caption={Пример настройки ip на ПК}]
+ip 10.10.10.2/24 10.10.10.1 (ПК 1)
+ip 10.10.10.3/24 10.10.10.1 (ПК 2)
+
+ip 10.20.20.2/24 10.20.20.1 (ПК 3)
+ip 10.20.20.2/24 10.20.20.1 (ПК 4)
+\end{lstlisting}
+
+
+\endinput
