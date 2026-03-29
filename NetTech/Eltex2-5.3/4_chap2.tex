@@ -1,0 +1,171 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейсов роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+#R1
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.100.1/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 172.16.100.1/30
+ip firewall disable
+exit
+
+1interface gigabitethernet 1/0/3
+ip address 192.168.0.1/23
+ip firewall disable
+exit
+
+do commit
+do confirm
+
+#R2
+configure
+
+interface gigabitethernet 1/0/1
+ip address 10.10.100.2/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 192.168.100.2/30
+ip firewall disable
+exit
+
+1interface gigabitethernet 1/0/3
+ip address 10.10.0.1/23
+ip firewall disable
+exit
+
+do commit
+do confirm
+
+#R3
+configure
+
+interface gigabitethernet 1/0/1
+ip address 172.16.100.2/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 10.10.100.1/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/3
+ip address 172.16.0.1/23
+ip firewall disable
+exit
+
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка ip на ПК}
+
+\begin{lstlisting}[language=C, caption={Пример настройки ip на ПК}]
+#VPC1
+ip 192.168.1.0/23 192.168.0.1
+#VPC2
+ip 10.10.1.0/23 10.10.0.1
+#VPC3
+ip 172.16.1.0/23 172.16.0.1
+\end{lstlisting}
+
+\section{Создание процесса OSPF}
+
+\begin{lstlisting}[language=C, caption={Пример создания процесса OSPF}]
+# создаем ospf процесс с id=250
+Router-left(config)# router ospf 250
+# задаем id маршрутизатора в этом процессе
+Router-left(config-ospf)# router-id 1.1.1.1
+# задаем ospf область
+Router-left(config-ospf)# area 0.0.0.0
+
+# применяем настройки
+Router-left(config-ospf-area)# enable
+Router-left(config-ospf-area)# exit
+Router-left(config-ospf)# enable
+
+# На R2,R3 настройка аналогична, но router-id изменится на 2.2.2.2 и 3.3.3.3 соответсвенно
+\end{lstlisting}
+
+\section{Добавление интерфейсов в процесс ospf}
+
+\begin{lstlisting}[language=C, caption={Пример добавления интерфейсов в процесс ospf}]
+Router-left(config)# interface gigabitethernet 1/0/1-3
+# привязка интерфейсов к ospf процессу
+Router-left(config-if-gi)# ip ospf instance 250
+# привязка интерфейсов к ospf области
+Router-left(config-if-gi)# ip ospf area 0.0.0.0
+# включение ospf на интерфейсах
+Router-left(config-if-gi)# ip ospf
+Router-left(config-if-gi)# exit
+
+# На R2,R3 настройки аналогичны
+\end{lstlisting}
+
+\section{Перевод интерфейсов в пассивный режим}
+
+На каждом роутере интерфейс gi1/0/3 подключен к оконечному устройству, который не участвует в OSPF процессе, но в ходе работы ospf он будет получать пакеты,
+которые никак использовать не будет. Получаем лишний трафик + это не безопасно. Проблема решается путем перевода интерфейса в пассивный режим.
+
+\begin{lstlisting}[language=C, caption={Пример перевода интерфейсов в пассивный режим}]
+Router-left(config)# interface gigabitethernet 1/0/3
+Router-left(config-if-gi)# ip ospf passive-interface
+
+# На R2,R3 настройки аналогичны
+\end{lstlisting}
+
+
+\section{Проверка таблицы маршрутизации}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{rt.png}
+    \caption{Таблица маршрутизации R1}
+\end{figure}
+
+Видим новые маршруты с типом O, полученные через OSPF. 
+
+\section{Проверка сетевой связности}
+
+Сделаем trace ПК1-ПК3
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{trace.png}
+    \caption{Трассировка маршрута}
+\end{figure}
+
+Видно, что пакеты идут по маршруту R1-R3.\\
+
+Теперь будем выполнять пинг ПК1-ПК3 и удалим канал между R1-R3
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{ping.png}
+    \caption{Пинг с удалением канала}
+\end{figure}
+
+В отличие от RIP, OSPF не нужно время на сходимость сети после изменения топологии, что позволяет не терять пакеты.
+Можно заметить, что в какой-то момент получение эхо-ответа от пункта назначения становится больше, именно в этот момент и произошло
+изменение пути. В конце сделал trace, который подтверждает, что маршрут изменился и теперь трафик идет по маршруту R1-R2-R3
+
+
+
+
+
+
+
+
+
+
+\endinput

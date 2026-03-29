@@ -1,0 +1,144 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейсов роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+#R1
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.10.1/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 10.10.10.1/24
+ip firewall disable
+exit
+
+1interface gigabitethernet 1/0/3
+ip address 172.16.10.1/24
+ip firewall disable
+exit
+
+do commit
+do confirm
+ 
+#R2
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.10.2/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 192.168.100.1/30
+ip firewall disable
+exit
+
+do commit
+do confirm
+
+#R-DHCP
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.100.2/30
+ip firewall disable
+exit
+
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка DHCP-сервера на роутере}
+
+\begin{lstlisting}[language=C, caption={Пример настройки DHCP-сервера}]
+# первый пул
+R-DHCP(config)# ip dhcp-server
+R-DHCP(config)# ip dhcp-server pool DHCP-10
+R-DHCP(config-dhcp-server)# network 10.10.10.0/24
+R-DHCP(config-dhcp-server)# address-range 10.10.10.100-
+10.10.10.200
+R-DHCP(config-dhcp-server)# default-router 10.10.10.1
+R-DHCP(config-dhcp-server)# default-lease-time 0:0:30
+R-DHCP(config-dhcp-server)# exit
+
+# второй пул
+R-DHCP(config)# ip dhcp-server pool DHCP-172
+R-DHCP(config-dhcp-server)# network 172.16.10.0/24
+R-DHCP(config-dhcp-server)# address-range 172.16.10.100-
+172.16.10.200
+R-DHCP(config-dhcp-server)# default-router 172.16.10.1
+R-DHCP(config-dhcp-server)# default-lease-time 0:0:30
+R-DHCP(config-dhcp-server)# exit
+\end{lstlisting}
+
+\section{Настройка ip helper}
+
+ip helper необходим потому, что dhcp-client отправляет пакет dhcp-discover, который является широковещательным. Поскольку
+сервер находится в другой сети, пакет до него не дойдет (роутер не пропускает широковещательный трафик). Роутер должен принять 
+dhcp-discover, преобразовать его в unicast пакет и направить к серверу
+
+\begin{lstlisting}[language=C, caption={Пример настройки ip helper}]
+# включаем dhcp-relay
+R1(config)# ip dhcp-relay
+R1(config)# interface gigabitethernet 1/0/2
+#задаем адрес сервера
+R1(config-if-gi)# ip helper-address 192.168.100.2
+R1(config-if-gi)# exit
+
+R1(config)# interface gigabitethernet 1/0/3
+R1(config-if-gi)# ip helper-address 192.168.100.2
+R1(config-if-gi)# exit
+
+R1(config)# do commit
+R1(config)# do confirm
+\end{lstlisting}
+
+
+\section{Настройка статического маршрута}
+
+Чтобы роутер мог отправить dhcp-discover в другую сеть нужно настроить статический маршрут R1->R-DHCP через R2.
+
+\begin{lstlisting}[language=C, caption={Пример настройки статического маршрута}]
+R1(config)# ip route 0.0.0.0/0 192.168.10.2
+R1(config)# do commit
+R1(config)# do confirm
+
+R-DHCP(config)# ip route 0.0.0.0/0 192.168.100.1
+R-DHCP(config)# do commit
+R-DHCP(config)# do confirm
+
+R2(config)# ip route 10.10.10.0/24 192.168.10.1
+R2(config)# ip route 172.16.10.0/24 192.168.10.1
+R2(config)# do commit
+R2(config)# do confirm
+
+\end{lstlisting}
+
+
+\section{Проверка сетевой связности}
+
+Сделаем ping ПК1-ПК2  
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{dhcp.png}
+    \caption{DHCP-клиент}
+\end{figure}
+
+Выполнили настройку клиента с помощью dhcp и проверили сетевую связность. Пинг проходит успешно.
+
+
+
+
+
+
+
+
+
+
+\endinput

@@ -77,86 +77,69 @@ do confirm
 
 \begin{lstlisting}[language=C, caption={Пример настройки ip на ПК}]
 #VPC1
-ip 172.16.10.10/24 172.16.10.1
+ip 10.10.0.10/24 10.10.0.1
 #VPC2
-ip 172.16.20.20/24 172.16.20.1
+ip 10.10.1.20/24 10.10.1.1
 #VPC3
-ip 172.16.30.30/24 172.16.30.1
+ip 10.10.10.10./24 10.10.10.1
 #VPC4
-ip 10.10.40.10/24 10.10.40.1
-#VPC5
-ip 10.10.50.20/24 10.10.50.1
-#VPC6
-ip 10.10.60.30/24 10.10.60.1
+ip 10.10.11.20/24 10.10.11.1
 \end{lstlisting}
 
-\section{Настройка главных статических маршрутов}
 
-\begin{lstlisting}[language=C, caption={Пример настройки статических маршрутов}]
-# R1-R2
+\section{Настройка маршрута}
+
+\begin{lstlisting}[language=C, caption={Пример настройки маршрута}]
+#R1-R2
 ip route 10.10.10.0/23 192.168.100.2
 
 do commit
-do confirm 
+do confirm
 
 #R2-R1
 ip route 10.10.0.0/23 192.168.100.1
 
 do commit
-do confirm 
+do confirm
 \end{lstlisting}
 
-Используем маску /23, т.к она охватывает все подсети на каждом из маршрутизаторов.
+0.0.0.0/0 - адрес по умолчанию, т.е весь трафик должен идти на роутер, адрес которого указан далее. Маршрут должен быть
+настроен с обеих сторон, иначе трафик будет идти только в одну сторону. \\
 
-\section{Настройка плавающих статических маршрутов}
+После выполнения этих команд в таблице маршрутизации появится новая запись:
 
-\begin{lstlisting}[language=C, caption={Пример настройки плавающих маршрутов}]
-# R1-R3
-ip route 10.10.10.0/23 10.10.100.2 10
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{rt.png}
+    \caption{Таблица маршрутизации}
+\end{figure}
 
-do commit
-do confirm 
-
-#R2-R3
-ip route 10.10.0.0/23 172.16.200.1 10
-
-do commit
-do confirm 
-\end{lstlisting}
-
-10 в конце означает cost. Мы повышаем "стоимость" пути, чтобы он хранился как запасной.
-
-\section{Настройка путей для каждой подсети}
-
-\begin{lstlisting}[language=C, caption={Пример настройки плавающих маршрутов}]
-# R1-R2-R3
-Router-down(config)# ip route 10.10.10.0/24 172.16.200.2
-Router-down(config)# ip route 10.10.11.0/24 172.16.200.2
-
-# R3-R2-R1
-Router-down(config)# ip route 10.10.0.0/24 10.10.100.1
-Router-down(config)# ip route 10.10.1.0/24 10.10.100.1
-
-\end{lstlisting}
+Маршрут имеет тип S,т.е он статический, preference=1, т.е этот маршрут имеет максимальный приоритет после типа C, также указан адрес следующего перехода.
 
 \section{Проверка}
 
-Сделаем trace ПК1-ПК3
+Если все настроено верно, то трафик с ПК1 должен идти на ПК5
 
 \begin{figure}[H] 
     \centering
-    \includegraphics[width=0.75\textwidth]{t1.png}
-    \caption{Прямой маршрут}
+    \includegraphics[width=0.75\textwidth]{ping1.png}
+    \caption{Проверка связности}
 \end{figure}
 
-Удалим соединение R1-R2 и повторим trace
+Пинг проходит успешно.
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=0.75\textwidth]{t2.png}
-    \caption{Плавающий маршрут}
-\end{figure}
+\section{Дополнительно}
 
-Маршруты пакетов отличаются: в первом случае трафик шел через R1-R2, а во втором случае через R1-R2-R3, т.е маршрут стал актулальным после того, как пропал главный маршрут.
+\begin{lstlisting}[language=C, caption={Пример удаления маршрута}]
+no ip route 0.0.0.0/0
+\end{lstlisting}
+
+Для безопасности можно настроить статический маршрут для каждой удаленной сети
+
+\begin{lstlisting}[language=C, caption={Пример статического маршрута до удаленной сети}]
+#R1-PC5
+ip route 10.10.50.20/24 192.168.100.2
+\end{lstlisting}
+
 
 \endinput

@@ -1,0 +1,86 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейсов роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+#R1
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.10.1/24
+ip firewall disable
+exit
+
+do commit
+do confirm
+\end{lstlisting}
+
+\section{Настройка DHCP-сервера на роутере}
+
+\begin{lstlisting}[language=C, caption={Пример настройки DHCP-сервера}]
+# запуск dhcp-server
+R1(config)# ip dhcp-server
+# создаем именованный пул адресов
+R1(config)# ip dhcp-server pool DHCP-10
+# задаем сеть для пула
+R1(config-dhcp-server)# network 192.168.10.0/24
+# задаем диапазон адресов
+R1(config-dhcp-server)# address-range 192.168.10.100-
+192.168.10.200
+# ip адрес шлюза, который будут получать клиенты
+R1(config-dhcp-server)# default-router 192.168.10.1
+# настройка периода аренды адреса (0 дней, 1 час, 0 минут)
+R1(config-dhcp-server)# default-lease-time 0:1:0
+
+R1(config-dhcp-server)# exit
+R1(config)# do commit
+R1(config)# do confirm
+\end{lstlisting}
+
+\section{Исправление ошибки в лабораторной работе}
+В лабораторной работе вместо полноценного коммутатора используется еще один роутер, у которого интерфейсы настроены в режиме портов.
+По умолчанию все интерфейсы работают как интерфейсы и их нужно переводить в режим порта, потому что без этого клиент не найдет dhcp сервер.
+В лабе ничего про это не сказано.
+
+\begin{lstlisting}[language=C, caption={Пример перевода интерфейса в режим порта}]
+configure
+
+interface gigabitethernet 1/0/1, 1/0/10-12
+mode switchport
+exit
+
+do commit
+do confirm
+\end{lstlisting}
+
+
+\section{Настройка dhcp-клиента}
+
+\begin{lstlisting}[language=C, caption={Пример настройки dhcp-клиента}]
+ip dhcp
+\end{lstlisting}
+
+
+\section{Проверка сетевой связности}
+
+Сделаем trace ПК1-ПК3
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{dhco.png}
+    \caption{DHCP-клиент}
+\end{figure}
+
+Выполнили настройку клиента с помощью dhcp и проверили сетевую связность. Пинг проходит успешно.
+
+
+
+
+
+
+
+
+
+
+\endinput
