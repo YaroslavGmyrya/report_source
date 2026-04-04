@@ -1,10 +1,10 @@
 \chapter{Практика}
 
 
-\section{Настройка интерфейсов роутера}
+\section{Настройка интерфейсов роутеров}
 
 \begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
-#R1
+# R1
 configure
 
 interface gigabitethernet 1/0/1
@@ -17,7 +17,7 @@ ip address 10.10.0.1/24
 ip firewall disable
 exit
 
-1interface gigabitethernet 1/0/3
+interface gigabitethernet 1/0/3
 ip address 10.10.1.1/24
 ip firewall disable
 exit
@@ -30,7 +30,7 @@ exit
 do commit
 do confirm
 
-#R2
+# R2
 configure
 
 interface gigabitethernet 1/0/1
@@ -43,7 +43,7 @@ ip address 10.10.10.1/24
 ip firewall disable
 exit
 
-1interface gigabitethernet 1/0/3
+interface gigabitethernet 1/0/3
 ip address 10.10.11.1/24
 ip firewall disable
 exit
@@ -56,7 +56,7 @@ exit
 do commit
 do confirm
 
-#R3
+# R3
 configure
 
 interface gigabitethernet 1/0/1
@@ -67,79 +67,103 @@ exit
 interface gigabitethernet 1/0/2
 ip address 10.10.100.2/30
 ip firewall disable
-exit
+exit 
+
 
 do commit
 do confirm
 \end{lstlisting}
 
-\section{Настройка ip на ПК}
+% \section{Настройка ip на ПК}
 
-\begin{lstlisting}[language=C, caption={Пример настройки ip на ПК}]
-#VPC1
-ip 10.10.0.10/24 10.10.0.1
-#VPC2
-ip 10.10.1.20/24 10.10.1.1
-#VPC3
-ip 10.10.10.10./24 10.10.10.1
-#VPC4
-ip 10.10.11.20/24 10.10.11.1
-\end{lstlisting}
+% \begin{lstlisting}[language=C, caption={Пример настройки ip на ПК}]
+% #VPC1
+% ip 172.16.10.10/24 172.16.10.1
+% #VPC2
+% ip 172.16.20.20/24 172.16.20.1
+% #VPC3
+% ip 172.16.30.30/24 172.16.30.1
+% #VPC4
+% ip 10.10.40.10/24 10.10.40.1
+% #VPC5
+% ip 10.10.50.20/24 10.10.50.1
+% #VPC6
+% ip 10.10.60.30/24 10.10.60.1
+% \end{lstlisting}
 
+% Проверка таблицы маршрутизации на R1
 
-\section{Настройка маршрута}
+% \begin{figure}[H] 
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{rt1.png}
+%     \caption{Таблица маршрутизации R1}
+% \end{figure}
 
-\begin{lstlisting}[language=C, caption={Пример настройки маршрута}]
-#R1-R2
-ip route 10.10.10.0/23 192.168.100.2
+% Видим 3 маршрута, которые являются напрямую подключенными сетями. Эти маршруты являются лучшеми и занесены в FIB.
 
-do commit
-do confirm
+% Проверка таблицы маршрутизации на 2
 
-#R2-R1
-ip route 10.10.0.0/23 192.168.100.1
+% \begin{figure}[H] 
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{rt2.png}
+%     \caption{Таблица маршрутизации R2}
+% \end{figure}
 
-do commit
-do confirm
-\end{lstlisting}
+% Таблица маршрутизации верная
 
-0.0.0.0/0 - адрес по умолчанию, т.е весь трафик должен идти на роутер, адрес которого указан далее. Маршрут должен быть
-настроен с обеих сторон, иначе трафик будет идти только в одну сторону. \\
+% \section{Настройка маршрута}
 
-После выполнения этих команд в таблице маршрутизации появится новая запись:
+% \begin{lstlisting}[language=C, caption={Пример настройки маршрута}]
+% #R1
+% ip route 0.0.0.0/0 192.168.100.2
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=0.75\textwidth]{rt.png}
-    \caption{Таблица маршрутизации}
-\end{figure}
+% do commit
+% do confirm
 
-Маршрут имеет тип S,т.е он статический, preference=1, т.е этот маршрут имеет максимальный приоритет после типа C, также указан адрес следующего перехода.
+% #R2
+% ip route 0.0.0.0/0 192.168.100.1
 
-\section{Проверка}
+% do commit
+% do confirm
+% \end{lstlisting}
 
-Если все настроено верно, то трафик с ПК1 должен идти на ПК5
+% 0.0.0.0/0 - адрес по умолчанию, т.е весь трафик должен идти на роутер, адрес которого указан далее. Маршрут должен быть
+% настроен с обеих сторон, иначе трафик будет идти только в одну сторону. \\
 
-\begin{figure}[H] 
-    \centering
-    \includegraphics[width=0.75\textwidth]{ping1.png}
-    \caption{Проверка связности}
-\end{figure}
+% После выполнения этих команд в таблице маршрутизации появится новая запись:
 
-Пинг проходит успешно.
+% \begin{figure}[H] 
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{rt.png}
+%     \caption{Таблица маршрутизации}
+% \end{figure}
 
-\section{Дополнительно}
+% Маршрут имеет тип S,т.е он статический, preference=1, т.е этот маршрут имеет максимальный приоритет после типа C, также указан адрес следующего перехода.
 
-\begin{lstlisting}[language=C, caption={Пример удаления маршрута}]
-no ip route 0.0.0.0/0
-\end{lstlisting}
+% \section{Проверка}
 
-Для безопасности можно настроить статический маршрут для каждой удаленной сети
+% Если все настроено верно, то трафик с ПК1 должен идти на ПК5
 
-\begin{lstlisting}[language=C, caption={Пример статического маршрута до удаленной сети}]
-#R1-PC5
-ip route 10.10.50.20/24 192.168.100.2
-\end{lstlisting}
+% \begin{figure}[H] 
+%     \centering
+%     \includegraphics[width=0.75\textwidth]{ping1.png}
+%     \caption{Проверка связности}
+% \end{figure}
+
+% Пинг проходит успешно.
+
+% \section{Дополнительно}
+
+% \begin{lstlisting}[language=C, caption={Пример удаления маршрута}]
+% no ip route 0.0.0.0/0
+% \end{lstlisting}
+
+% Для безопасности можно настроить статический маршрут для каждой удаленной сети
+
+% \begin{lstlisting}[language=C, caption={Пример статического маршрута до удаленной сети}]
+% #R1-PC5
+% ip route 10.10.50.20/24 192.168.100.2
+% \end{lstlisting}
 
 
 \endinput
