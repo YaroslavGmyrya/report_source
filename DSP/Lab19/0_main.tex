@@ -10,19 +10,39 @@
 
 %%% Задаем языковые параметры и шрифт %%%
 
-\usepackage[english, russian]{babel}                % Настройки для русского языка как основного в тексте
-\babelfont[russian]{rm}{Times New Roman}                     % TMR в качестве базового roman-щрифта
+% \usepackage[english, russian]{babel}                % Настройки для русского языка как основного в тексте
+\usepackage{polyglossia}
 \usepackage{float}
-\usepackage{amsmath}
-\usepackage{amssymb}
-\usepackage{fancyhdr}
+\usepackage{listings}
+\usepackage{xcolor} 
+\setdefaultlanguage[indentfirst=true,forceheadingpunctuation=false]{russian}
+\setotherlanguages{english}
+
+\IfFontExistsTF{Times New Roman}
+{\setmainfont{Times New Roman}
+\newfontfamily\cyrillicfont{Times New Roman}[Script=Cyrillic]}
+{\setmainfont[Script=Cyrillic]{FreeSerif}}
+
+\IfFontExistsTF{Courier New}
+{\setmonofont{Courier New}
+\newfontfamily\cyrillicfonttt{Courier New}[Script=Cyrillic]
+}
+{\setmonofont[Script=Cyrillic]{FreeMono}}
+
+\IfFontExistsTF{Arial}
+{\setsansfont{Arial}
+\newfontfamily\cyrillicfontsf{Arial}[Script=Cyrillic]
+}
+{\setsansfont[Script=Cyrillic]{FreeSans}}
+
+
 
 %%% Задаем стиль заголовков и подзаголовков в тексте %%%
 
 \setsecnumdepth{subsection} % Номера разделов считать до третьего уровня включительно, т.е. нумеруются только главы, секции, подсекции
 \renewcommand*{\chapterheadstart}{} % Переопределяем команду, задающую отступ над заголовком, чтобы отступа не было
 \renewcommand*{\printchaptername}{} % Переопределяем команду, печатающую слово "Глава", чтобы оно не печалось
-\renewcommand*{\printchapternum}{} % То же самое для номера главы - тут не надо, номер главы оставляем
+%\renewcommand*{\printchapternum}{} % То же самое для номера главы - тут не надо, номер главы оставляем
 \renewcommand*{\chapnumfont}{\normalfont\bfseries} % Меняем стиль шрифта для номера главы: нормальный размер, полужирный
 \renewcommand*{\afterchapternum}{\hspace{1em}} % Меняем разделитель между номером главы и названием
 \renewcommand*{\printchaptertitle}{\normalfont\bfseries\centering\MakeUppercase} % Меняем стиль написания для заголовка главы: нормальный размер, полужирный, центрированный, заглавными буквами
@@ -180,11 +200,36 @@ isbn=false,                                         % Не показывать 
 \input{1_title}                                     % Титульник
 
 \newpage % Переходим на новую страницу
-%\setcounter{page}{2} % Начинаем считать номера страниц со второй
+\setcounter{page}{2} % Начинаем считать номера страниц со второй
 \OnehalfSpacing* % Задаем полуторный интервал текста (в титульнике одинарный, поэтому команда стоит после него)
 
 \tableofcontents*                                   % Автособираемое оглавление
-\thispagestyle{empty}
+
+\lstdefinestyle{mystyle}{
+    backgroundcolor=\color{white},
+    basicstyle=\rmfamily\small,           % Times New Roman вместо \ttfamily
+    keywordstyle=\color{blue}\bfseries,
+    commentstyle=\color[HTML]{2B8315}\itshape,
+    stringstyle=\color{red},
+    numberstyle=\tiny\color{gray},
+    numbers=left,
+    stepnumber=1,
+    numbersep=5pt,
+    showstringspaces=false,
+    tabsize=4,
+    breaklines=true,
+    breakatwhitespace=true,
+    frame=single,
+    rulecolor=\color{black},
+    keepspaces=true,
+    extendedchars=true,
+    captionpos=b,                          % Теперь подпись сверху для memoir
+    abovecaptionskip=10pt,                 % Отступ над кодом
+    belowcaptionskip=0pt                   % Отступ под подписью
+}
+
+\lstset{style=mystyle}
+
 \input{2_intro}                                     % Введение
 \input{3_chap1}                                     % Первая глава
 \input{4_chap2}                                     % Вторая глава
