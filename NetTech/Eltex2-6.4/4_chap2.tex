@@ -1,0 +1,75 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейса роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейса роутера}]
+#R1
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.1.1/24
+ip firewall disable
+exit
+
+do commit
+do confirm
+
+\end{lstlisting}
+
+
+\section{Настройка интерфейса ПК}
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{debian.png}
+    \caption{Пример настройки Debian}
+\end{figure}
+
+\section{Настройка NTP сервера}
+
+Чтобы NTP сервер передавать время на маршрутизатор, нужно, чтобы на самом сервере было настроено время. Для этого можно воспользоваться командами date, чтобы 
+посмотреть текущее время и date <MM:DD:HH> для настройки времени. \\
+
+Далее необходимо проверить статус службы NTP с помощью timedatectl status chronyd, а при необходимости включить с помощью timedatectl set-ntp true.\\
+
+
+\section{Настройка NTP клиента}
+
+
+\begin{lstlisting}[language=C, caption={Пример настройки NTP на роутере}]
+configure
+
+# включаем NTP
+ntp enable
+# задаем адрес сервера
+ntp server 192.168.1.10
+# задаем минимальный интервал опроса (2^1 sec)
+minpoll 1
+# задаем максимальный интервал опроса (2^4 sec)
+maxpoll 4
+
+# настройка часового пояса
+clock timezone gmt +8
+
+do commit
+do confirm
+
+
+\end{lstlisting}
+
+
+\section{Проверка работоспособности}
+
+Если всё настроено верно, то время на маршрутизаторе должно синхронизироваться со временем на сервере:
+
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{time2.png}
+    \caption{Время на роутере}
+\end{figure}
+
+Время совпадает со временем на сервере, значит, всё настроено верно.
+
+\endinput

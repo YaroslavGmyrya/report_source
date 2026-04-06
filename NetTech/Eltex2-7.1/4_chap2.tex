@@ -1,0 +1,154 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейсов роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+#R1
+configure
+
+interface gigabitethernet 1/0/1
+ip address 192.168.10.1/24
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/2
+ip address 192.168.20.1/24
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/3
+ip address 192.168.30.1/24
+ip firewall disable
+exit
+
+do commit
+do confirm
+
+\end{lstlisting}
+
+
+\section{Настройка интерфейса ПК}
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{debian.png}
+    \caption{Пример настройки Debian}
+\end{figure}
+
+Остальные ПК настраиваются аналогично.
+
+\section{Настройка telnet и ssh}
+
+\begin{lstlisting}[language=C, caption={Пример настройки telnet,ssh на роутере}]
+#R1
+configure
+
+# run ssh
+ip ssh server
+
+# run telnet
+ip telnet server
+
+do commit
+do confirm
+
+\end{lstlisting}
+
+
+\section{Создание ACL}
+
+
+\begin{lstlisting}[language=C, caption={Пример создания ACL}]
+configure
+
+# создаем расширенный список правил
+ip access-list extended Test1
+# создадим правило с номером 10
+rule 10
+# задаем тип правила (запрет или разрешение)
+action deny
+# выбираем протокол
+match protocol tcp
+# выбираем порты, которые хотим запретить
+match destination-port port-range 23
+# применяем правило
+enable
+
+exit
+
+# разрешим tcp:22
+rule 20
+action permit
+match protocol tcp
+match destination-port port-range 22
+enable
+exit
+
+# разрешим ICMP
+rule 30
+action permit
+match protocol icmp
+enable
+exit
+
+# создадим еще один список правил
+ip access-list extended Test2
+
+# запретим tcp:22
+rule 10
+action deny
+match protocol tcp
+match destination-port port-range 22
+enable
+exit
+
+# запретим tcp:23
+rule 20
+action deny
+match protocol tcp
+match destination-port port-range 23
+enable
+exit
+
+# запретим icmp
+rule 30
+action deny
+match protocol icmp
+enable
+exit
+
+do commit
+do confirm
+
+\end{lstlisting}
+
+\section{Закрпеление правил за интерфейсом}
+
+\begin{lstlisting}[language=C, caption={Пример закрепления списка правил за интерфейсом}]
+configure
+
+# выбираем интерфейс
+interface gigabitethernet 1/0/1
+# добавляем список правил
+service-acl input Test1
+exit
+
+do commit
+do confirm
+
+\end{lstlisting}
+
+\section{Проверка работоспособности}
+
+Если всё настроено верно, с ПК, подключенного к интерфейсу 1/0/1 роутера, невозможно будет подключиться по telnet, т.к tcp:23 запрещен
+
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{test.png}
+    \caption{Время на роутере}
+\end{figure}
+
+ПК не может подключиться к роутеру по telnet, значит, все настроено верно.
+\endinput
