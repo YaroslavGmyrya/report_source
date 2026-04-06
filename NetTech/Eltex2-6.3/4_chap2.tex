@@ -1,24 +1,19 @@
 \chapter{Практика}
 
 
-\section{Настройка интерфейсов роутера}
+\section{Настройка интерфейсов роутеров}
 
-\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутеров}]
 #R1
 configure
 
 interface gigabitethernet 1/0/1
-ip address 192.168.10.1/30
+ip address 10.10.10.2/30
 ip firewall disable
 exit
 
-interface gigabitethernet 1/0/2
-ip address 10.10.10.1/24
-ip firewall disable
-exit
-
-1interface gigabitethernet 1/0/3
-ip address 172.16.10.1/24
+interface gigabitethernet 1/0/3
+ip address 192.168.1.1/24
 ip firewall disable
 exit
 
@@ -29,23 +24,28 @@ do confirm
 configure
 
 interface gigabitethernet 1/0/1
-ip address 192.168.10.2/30
+ip address 10.10.50.2/30
 ip firewall disable
 exit
 
-interface gigabitethernet 1/0/2
-ip address 192.168.100.1/30
+interface gigabitethernet 1/0/3
+ip address 192.168.1.1/24
 ip firewall disable
 exit
 
 do commit
 do confirm
 
-#R-DHCP
+#R2
 configure
 
 interface gigabitethernet 1/0/1
-ip address 192.168.100.2/30
+ip address 10.10.10.1/30
+ip firewall disable
+exit
+
+interface gigabitethernet 1/0/3
+ip address 10.10.50.1/30
 ip firewall disable
 exit
 
@@ -53,92 +53,115 @@ do commit
 do confirm
 \end{lstlisting}
 
-\section{Настройка DHCP-сервера на роутере}
 
-\begin{lstlisting}[language=C, caption={Пример настройки DHCP-сервера}]
-# первый пул
-R-DHCP(config)# ip dhcp-server
-R-DHCP(config)# ip dhcp-server pool DHCP-10
-R-DHCP(config-dhcp-server)# network 10.10.10.0/24
-R-DHCP(config-dhcp-server)# address-range 10.10.10.100-
-10.10.10.200
-R-DHCP(config-dhcp-server)# default-router 10.10.10.1
-R-DHCP(config-dhcp-server)# default-lease-time 0:0:30
-R-DHCP(config-dhcp-server)# exit
+\section{Настройка интерфейсов ПК}
 
-# второй пул
-R-DHCP(config)# ip dhcp-server pool DHCP-172
-R-DHCP(config-dhcp-server)# network 172.16.10.0/24
-R-DHCP(config-dhcp-server)# address-range 172.16.10.100-
-172.16.10.200
-R-DHCP(config-dhcp-server)# default-router 172.16.10.1
-R-DHCP(config-dhcp-server)# default-lease-time 0:0:30
-R-DHCP(config-dhcp-server)# exit
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов ПК}]
+# PC1
+ip 192.168.1.100/24 192.168.1.1
+
+# PC2
+ip 192.168.1.10/24 192.168.1.1
 \end{lstlisting}
 
-\section{Настройка ip helper}
+\section{Настройка коммутаторов}
 
-ip helper необходим потому, что dhcp-client отправляет пакет dhcp-discover, который является широковещательным. Поскольку
-сервер находится в другой сети, пакет до него не дойдет (роутер не пропускает широковещательный трафик). Роутер должен принять 
-dhcp-discover, преобразовать его в unicast пакет и направить к серверу
+Интерфейсы коммутаторов необходимо перевести в режим switchport
 
-\begin{lstlisting}[language=C, caption={Пример настройки ip helper}]
-# включаем dhcp-relay
-R1(config)# ip dhcp-relay
-R1(config)# interface gigabitethernet 1/0/2
-#задаем адрес сервера
-R1(config-if-gi)# ip helper-address 192.168.100.2
-R1(config-if-gi)# exit
+\begin{lstlisting}[language=C, caption={Пример настройки коммутаторов}]
+configure
 
-R1(config)# interface gigabitethernet 1/0/3
-R1(config-if-gi)# ip helper-address 192.168.100.2
-R1(config-if-gi)# exit
+interface gigabitethernet 1/0/1-24
+mode switchport
+exit
 
-R1(config)# do commit
-R1(config)# do confirm
+do commit
+do confirm
 \end{lstlisting}
 
 
-\section{Настройка статического маршрута}
+\section{Настройка IP на Debian}
 
-Чтобы роутер мог отправить dhcp-discover в другую сеть нужно настроить статический маршрут R1->R-DHCP через R2.
-
-\begin{lstlisting}[language=C, caption={Пример настройки статического маршрута}]
-R1(config)# ip route 0.0.0.0/0 192.168.10.2
-R1(config)# do commit
-R1(config)# do confirm
-
-R-DHCP(config)# ip route 0.0.0.0/0 192.168.100.1
-R-DHCP(config)# do commit
-R-DHCP(config)# do confirm
-
-R2(config)# ip route 10.10.10.0/24 192.168.10.1
-R2(config)# ip route 172.16.10.0/24 192.168.10.1
-R2(config)# do commit
-R2(config)# do confirm
-
-\end{lstlisting}
-
-
-\section{Проверка сетевой связности}
-
-Сделаем ping ПК1-ПК2  
+Чтобы настроить интерфейс, нужно внести изменения в файле /etc/netplan/interfaces
 
 \begin{figure}[H] 
     \centering
-    \includegraphics[width=0.75\textwidth]{dhcp.png}
-    \caption{DHCP-клиент}
+    \includegraphics[width=0.75\textwidth]{debian.png}
+    \caption{Настройка debian}
 \end{figure}
 
-Выполнили настройку клиента с помощью dhcp и проверили сетевую связность. Пинг проходит успешно.
+После этого выполнить ifup ens3
+
+\section{Настройка IP на Docker}
+
+В этом моменте произошел баг: IP не настраивается (могу пингануть любое устройство из сети докера, но его пингануть не могу). По этой причине не могу получить
+доступ к сайту на Debian
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{error.png}
+    \caption{Настройка docker}
+\end{figure}
 
 
+\section{Настройка source NAT на R1}
+
+\begin{lstlisting}[language=C, caption={Пример настройки snat на R1}]
+# переход к настройке source nat (будет меняться ip пакетов, которые выходят в публичную сеть (R1(gi 1/0/3) -> R1(gi 1/0/1)))
+nat source
+# создаем набор правил (имя любое)
+ruleset SNAT
+# выбираем интерфейс, к которому будут применяться правила (порт для выхода в публичную сеть)
+to interface gi1/0/1
+# задаем правило с номером 10
+rule 10
+# определяем пул адресов, которые будут подменяться
+match source-address address-range 192.168.1.1-192.168.1.254
+# включение трансляции
+action source-nat interface
+# активация
+enable
+
+exit
+exit
+exit
+
+commit
+do confirm
+\end{lstlisting}
 
 
+Теперь весь трафик, идущий с сети 192.168.1.0/24 будет поступать на порт 1/0/3 R1, а на выходе в публичную сеть с интерфейса 1/0/1 ip будет подменяться на ip интерфейса
+
+\section{Настройка статического маршрута}
+
+Чтобы роутер R1 пересылал трафик в публичную сеть, необходимо задать ему маршрут
+
+\begin{lstlisting}[language=C, caption={Пример настройки статического маршрута на R1}]
+ip route 0.0.0.0/0 10.10.10.1
+\end{lstlisting}
+
+Весь трафик будет пересылаться маршрутизатору R3
+
+\section{Настройка R2}
+
+Настройка аналогична R1, поскольку адреса подсетей совпадают. \\
+
+Отличие будет в настройке маршрута: следующим hop'ом будет адрес 10.10.50.1
 
 
+\section{Проверка работоспособности}
+
+Если всё работает верно, то маршрутизатор R3 должен получать от маршрутизатора R2 подмененный адрес 
 
 
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{result.png}
+    \caption{Результат}
+\end{figure}
+
+R3 получает от R2 пакета с адресом 10.10.10.1, а не из сети 192.168.1.0/24. Это значит, что NAT работает
 
 
 \endinput

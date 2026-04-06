@@ -1,10 +1,10 @@
-This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.3.24)  29 MAR 2026 16:41
+This is XeTeX, Version 3.141592653-2.6-0.999995 (TeX Live 2023/Debian) (preloaded format=xelatex 2026.3.24)  6 APR 2026 15:51
 entering extended mode
  restricted \write18 enabled.
  file:line:error style messages enabled.
  %&-line parsing enabled.
-**/home/host/Desktop/report_source/NetTech/Eltex2-6.2/0_main.tex
-(/home/host/Desktop/report_source/NetTech/Eltex2-6.2/0_main.tex
+**/home/host/Desktop/code/report_source/NetTech/Eltex2-6.3/0_main.tex
+(/home/host/Desktop/code/report_source/NetTech/Eltex2-6.3/0_main.tex
 LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2024-01-22>
 (/usr/share/texlive/texmf-dist/tex/latex/memoir/memoir.cls
@@ -1404,18 +1404,13 @@ Package fontspec Info: Font family 'FreeSerif(1)' created for font 'FreeSerif'
  (./1_title.tex) [1
 
 ] (./0_main.toc) (./2_intro.tex [2]
-Underfull \hbox (badness 1509) in paragraph at lines 25--27
-[]\TU/FreeSerif(1)/m/n/14.4 Настроить helper-address 192.168.100.2 на интерфейсах gi1/0/2 и
- []
-
 File: images/top.png Graphic file (type bmp)
 <images/top.png>
-[3
-
-]
 File: images/table.png Graphic file (type bmp)
 <images/table.png>
-) (./3_chap1.tex) (./4_chap2.tex [4] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
+ [3
+
+]) (./3_chap1.tex) (./4_chap2.tex [4] (/usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 File: lstlang1.sty 2023/02/27 1.9 listings language file
 ) (/usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
@@ -1423,10 +1418,29 @@ File: lstmisc.sty 2023/02/27 1.9 (Carsten Heinz)
 Package hyperref Info: bookmark level for unknown lstlisting defaults to 0 on input line 6.
  [5
 
-] [6] [7]
-File: images/dhcp.png Graphic file (type bmp)
-<images/dhcp.png>
-) (./5_chap3.tex [8])
+]
+Underfull \hbox (badness 10000) in paragraph at lines 85--86
+[]\TU/FreeSerif(1)/m/n/14.4 Чтобы настроить интерфейс, нужно внести изменения в файле
+ []
+
+File: images/debian.png Graphic file (type bmp)
+<images/debian.png>
+[6]
+File: images/error.png Graphic file (type bmp)
+<images/error.png>
+ [7] [8]
+Underfull \hbox (badness 10000) in paragraph at lines 148--149
+
+ []
+
+File: images/result.png Graphic file (type bmp)
+<images/result.png>
+[9]
+Underfull \hbox (badness 5741) in paragraph at lines 164--165
+[]\TU/FreeSerif(1)/m/n/14.4 R3 получает от R2 пакета с адресом 10.10.10.1, а не из сети
+ []
+
+) (./5_chap3.tex [10])
 
 Package caption Warning: Unused \captionsetup[subfigure] on input line 108.
 See the caption package documentation for explanation.
@@ -1435,7 +1449,7 @@ See the caption package documentation for explanation.
 Package caption Warning: Unused \captionsetup[table] on input line 109.
 See the caption package documentation for explanation.
 
-[9
+[11
 
 ]
 \tf@toc=\write6
@@ -1447,18 +1461,18 @@ LaTeX2e <2023-11-01> patch level 1
 L3 programming layer <2020/03/25>
  ***********
 Package rerunfilecheck Info: File `0_main.out' has not changed.
-(rerunfilecheck)             Checksum: 440E485CA74FF13166ACBAB6C346BC62;1821.
+(rerunfilecheck)             Checksum: D5032953DB185A808557A47B437866CD;2609.
 Package logreq Info: Writing requests to '0_main.run.xml'.
 \openout1 = `0_main.run.xml'.
 
  ) 
 Here is how much of TeX's memory you used:
- 31410 strings out of 474878
- 615148 string characters out of 5762516
- 1987627 words of memory out of 5000000
- 53017 multiletter control sequences out of 15000+600000
+ 31435 strings out of 474878
+ 615650 string characters out of 5762516
+ 1970627 words of memory out of 5000000
+ 53040 multiletter control sequences out of 15000+600000
  561891 words of font info for 88 fonts, out of 8000000 for 9000
  1348 hyphenation exceptions out of 8191
- 85i,12n,117p,1203b,3984s stack positions out of 10000i,1000n,20000p,200000b,200000s
+ 85i,12n,117p,1208b,3984s stack positions out of 10000i,1000n,20000p,200000b,200000s
 
-Output written on 0_main.xdv (9 pages, 136848 bytes).
+Output written on 0_main.xdv (11 pages, 126992 bytes).

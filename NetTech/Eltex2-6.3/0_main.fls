@@ -1,9 +1,9 @@
-PWD /home/host/Desktop/report_source/NetTech/Eltex2-6.2
+PWD /home/host/Desktop/code/report_source/NetTech/Eltex2-6.3
 INPUT /etc/texmf/web2c/texmf.cnf
 INPUT /usr/share/texmf/web2c/texmf.cnf
 INPUT /usr/share/texlive/texmf-dist/web2c/texmf.cnf
 INPUT /var/lib/texmf/web2c/xetex/xelatex.fmt
-INPUT /home/host/Desktop/report_source/NetTech/Eltex2-6.2/0_main.tex
+INPUT /home/host/Desktop/code/report_source/NetTech/Eltex2-6.3/0_main.tex
 OUTPUT 0_main.log
 INPUT /usr/share/texlive/texmf-dist/tex/latex/memoir/memoir.cls
 INPUT /usr/share/texlive/texmf-dist/tex/latex/memoir/memoir.cls
@@ -364,8 +364,12 @@ INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstlang1.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
 INPUT /usr/share/texlive/texmf-dist/tex/latex/listings/lstmisc.sty
-INPUT ./images/dhcp.png
-INPUT ./images/dhcp.png
+INPUT ./images/debian.png
+INPUT ./images/debian.png
+INPUT ./images/error.png
+INPUT ./images/error.png
+INPUT ./images/result.png
+INPUT ./images/result.png
 INPUT ./5_chap3.tex
 INPUT ./5_chap3.tex
 INPUT ./5_chap3.tex
