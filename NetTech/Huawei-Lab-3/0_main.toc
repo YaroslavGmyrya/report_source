@@ -1,0 +1,10 @@
+\xpg@aux {indentfirst=true,forceheadingpunctuation=false}{russian}
+\contentsline {chapter}{\chapternumberline {1}Введение}{3}{chapter.1}%
+\contentsline {section}{\numberline {1.1}Цель}{3}{section.1.1}%
+\contentsline {section}{\numberline {1.2}Задачи}{3}{section.1.2}%
+\contentsline {chapter}{\chapternumberline {2}Практика}{5}{chapter.2}%
+\contentsline {section}{\numberline {2.1}Настройка интерфейсов роутера}{5}{section.2.1}%
+\contentsline {section}{\numberline {2.2}Настройка портов коммутаторов}{5}{section.2.2}%
+\contentsline {section}{\numberline {2.3}Создание и настройка SVI интерфейса}{5}{section.2.3}%
+\contentsline {section}{\numberline {2.4}Настройка trunk порта между коммутаторами}{6}{section.2.4}%
+\contentsline {chapter}{\chapternumberline {3}Вывод}{7}{chapter.3}%

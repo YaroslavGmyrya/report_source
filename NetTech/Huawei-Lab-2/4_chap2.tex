@@ -1,0 +1,60 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейсов роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+
+# переход в режим конфигурации
+<Huawei>system-view
+# выбор интерфейса
+[Datacom-Router]interface GigabitEthernet 0/0/1
+# назначение IP и маски
+[Datacom-Router]ip address 10.0.13.1 24
+# сохраняем настройки
+save
+\end{lstlisting}
+
+Остальные интрерфейсы аналогично
+
+\section{Проверка сетевой связности}
+
+\begin{figure}[H] 
+    \centering
+    \includegraphics[width=0.75\textwidth]{check1.png}
+    \caption{Проверка связности}
+\end{figure}
+
+Пинг проходит, значит, интерфейсы работают верно
+
+\section{Создание LoopBack интерфейса}
+
+\begin{lstlisting}[language=C, caption={Пример создания LoopBack интерфейса}]
+
+interface LoopBack0
+ip address 10.0.1.1 32
+\end{lstlisting}
+
+Аналогично для R2 и R3
+
+\section{Настройка статических маршрутов}
+
+\begin{lstlisting}[language=C, caption={Пример настройки статического маршрута}]
+
+ip route-static 10.0.1.2 32 10.0.13.3
+ip route-static 10.0.1.3 32 10.0.12.2
+
+\end{lstlisting}
+
+Аналогично для R2 и R3. \\
+
+Проверка сетевой связности с LoopBack интерфейсами
+
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{checl2.png}
+    \caption{Проверка связности}
+\end{figure}
+
+\endinput

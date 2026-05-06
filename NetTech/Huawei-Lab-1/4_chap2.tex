@@ -1,0 +1,66 @@
+\chapter{Практика}
+
+
+\section{Настройка интерфейсов роутера}
+
+\begin{lstlisting}[language=C, caption={Пример настройки интерфейсов роутера}]
+
+# переход в режим конфигурации
+<Huawei>system-view
+# выбор интерфейса
+[Datacom-Router]interface GigabitEthernet 0/0/1
+# назначение IP и маски
+[Datacom-Router]ip address 192.168.1.1 24
+\end{lstlisting}
+
+\section{Проверка текущей конфигурации}
+
+\begin{lstlisting}[language=C, caption={Пример проверки текущей конфигурации}]
+
+[Datacom-Router]display current-configuration
+
+\end{lstlisting}
+
+\section{Проверка текущей конфигурации}
+
+\begin{lstlisting}[language=C, caption={Пример проверки текущей конфигурации}]
+
+[Datacom-Router]display current-configuration
+
+\end{lstlisting}
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{cur_conf.png}
+    \caption{Текущая конфигурация}
+\end{figure}
+
+\section{Проверка текущей конфигурации}
+
+\begin{lstlisting}[language=C, caption={Пример проверки текущей конфигурации}]
+
+[Datacom-Router]display current-configuration
+
+\end{lstlisting}
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{cur_conf.png}
+    \caption{Текущая конфигурация}
+\end{figure}
+
+\endinput
+
+\section{Применение изменений}
+
+\begin{lstlisting}[language=C, caption={Пример применения изменений}]
+<Datacom-Router>save
+\end{lstlisting}
+
+\begin{figure}[H]  
+    \centering
+    \includegraphics[width=0.75\textwidth]{cur_conf.png}
+    \caption{Текущая конфигурация}
+\end{figure}
+
+\endinput
