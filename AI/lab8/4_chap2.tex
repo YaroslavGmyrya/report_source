@@ -1,0 +1,47 @@
+\chapter{Практика}
+
+\section{Сравнение полиномиальных регрессий разных порядков}
+
+Сравним полиномиаьные регрессии с порядком от 2 до 5, чтобы увидеть, как сильно порядок влияет на точность
+
+\begin{figure}[h!]
+    \centering
+
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{poly_reg_N=2.png}
+        \caption{N = 2}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{poly_reg_N=3.png}
+        \caption{N = 3}
+    \end{subfigure}
+
+    \vspace{0.5cm}
+
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{poly_reg_N=4.png}
+        \caption{N = 4}
+    \end{subfigure}
+    \hfill
+    \begin{subfigure}{0.45\textwidth}
+        \centering
+        \includegraphics[width=\linewidth]{poly_reg_N=5.png}
+        \caption{N = 5}
+    \end{subfigure}
+
+    \caption{Сравнение полиномиальной регрессии при разных степенях}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{acc.png}
+    \caption{Точности моделей}
+\end{figure}
+
+Точность меняется на уровне погрешности. Это говорит о том, что не для всех случаев порядок полиномиальной регрессии может повышать точность.
+
+\endinput

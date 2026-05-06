@@ -1,0 +1,93 @@
+\chapter{Практика}
+
+\section{Backward Elimination}
+
+После считывания данных из датасета приступим к процедуре \textbf{Backward Elimination} - построим линенйную регрессию на всех признаках, а потом будем выкидывать 
+на каждой итерации по одному признаку, который влияет меньше всего. Порог выбора равен 0.05, т.е если метрика pvalue > 0.05, то такой признак отбрасывается. pvalue показывает,
+насколько признак НЕ влияет на предсказания модели.
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{be.png}
+    \caption{Логи работы метода BE}
+\end{figure}
+
+Модель посчитала, что значимыми признаками являются только CHMAX и ERP.
+
+\section{Анализ результатов итоговой модели}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{mode.png}
+    \caption{Результаты итоговой модели}
+\end{figure}
+
+\begin{enumerate}
+    \item \textbf{Dep. Variable} — целевая переменная, которую предсказывает модель (PRP).
+
+    \item \textbf{Model (OLS)} — используется линейная регрессия (метод наименьших квадратов).
+
+    \item \textbf{Method (Least Squares)} — способ оценки коэффициентов: минимизация суммы квадратов ошибок.
+
+    \item \textbf{No. Observations} — количество наблюдений (объектов в данных).
+
+    \item \textbf{Df Model} — число признаков в модели.
+
+    \item \textbf{Df Residuals} — степени свободы остатков (количество наблюдений минус число параметров).
+
+    \item \textbf{R-squared (uncentered)} — доля объяснённой дисперсии (качество модели), без учёта константы.
+
+    \item \textbf{Adj. R-squared} — скорректированный R² с учётом числа признаков.
+
+    \item \textbf{F-statistic} — проверяет значимость модели в целом.
+
+    \item \textbf{Prob (F-statistic)} — p-value для всей модели (если близко к 0 — модель значима).
+
+    \item \textbf{Log-Likelihood} — мера качества модели (чем больше, тем лучше).
+
+    \item \textbf{AIC} — критерий качества с учётом сложности (меньше — лучше).
+
+    \item \textbf{BIC} — аналог AIC, сильнее штрафует сложные модели.
+
+    \item \textbf{coef} — коэффициенты регрессии (влияние признака на целевую переменную).
+
+    \item \textbf{std err} — стандартная ошибка коэффициента (точность оценки).
+
+    \item \textbf{t} — t-статистика (насколько значим коэффициент).
+
+    \item \textbf{P>|t|} — p-value признака (если $< 0.05$, признак значим).
+
+    \item \textbf{[0.025, 0.975]} — 95\% доверительный интервал для коэффициента.
+
+    \item \textbf{Omnibus} — тест на нормальность распределения остатков.
+
+    \item \textbf{Prob(Omnibus)} — p-value теста Omnibus.
+
+    \item \textbf{Jarque-Bera (JB)} — ещё один тест нормальности остатков.
+
+    \item \textbf{Prob(JB)} — p-value теста Jarque-Bera.
+
+    \item \textbf{Skew} — асимметрия распределения остатков.
+
+    \item \textbf{Kurtosis} — ``тяжесть хвостов'' распределения (наличие выбросов).
+
+    \item \textbf{Durbin-Watson} — проверка автокорреляции ошибок (≈2 — норма).
+
+    \item \textbf{Cond. No} — показатель мультиколлинеарности (большое значение — проблема).
+\end{enumerate}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{est.png}
+    \caption{Оценка модели}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{reg_pr.png}
+    \caption{Регрессионная плоскость}
+\end{figure}
+
+Поскольку модель выбрала всего 2 признака, то можно изобразить регрессионную плоскость в 3D пространстве.
+
+\endinput

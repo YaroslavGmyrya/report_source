@@ -1,0 +1,87 @@
+\chapter{Теория}
+
+\section{Линейная регрессия}
+Линейная регрессия (Linear regression) — один из простейших алгоритмов машинного обучения, описывающий зависимость целевой переменной от признака в виде линейной функции:
+\[
+y = kx + b.
+\]
+
+В данном случае была представлена простая (или парная) линейная регрессия, а уравнение вида
+\[
+f_{w, b}(x) = w_0 x_0 + w_1 x_1 + \dots + w_n x_n + b = \mathbf{w} \cdot \mathbf{x} + b
+\]
+называется множественной линейной регрессией, где \( b \) — смещение модели, \( \mathbf{w} \) — вектор её весов, а \( \mathbf{x} \) — вектор признаков одного обучающего образца.
+
+К другим условиям определения линейной регрессии относятся гомоскедастичность (дисперсия остатков постоянна и конечна), а также отсутствие мультиколлинеарности (линейной зависимости между признаками).
+
+\begin{figure}[H]
+    \centering
+    \includegraphics{regr.png}
+    \caption{Интуиция линейной регрессии}
+\end{figure}
+
+\section{Метод наименьших квадратов и функция потерь}
+
+Выбор регрессионной линии (плоскости), описывающей взаимосвязь данных наилучшим образом, заключается в минимизации функции потерь J, представленной в виде среднеквадратичной ошибки. Проще говоря, линия должна проходить через данные таким образом, чтобы в среднем разница квадратов ожидаемых и реальных значений была минимальна. Данный метод называется методом наименьших квадратов.
+
+При наличии же большого количества выбросов в данных, более эффективным может оказаться метод наименьших модулей, однако у него есть один серьёзный недостаток: функция модуля не является дифференцируемой в точке x=0, что в ряде случаев может затруднить минимизацию ошибки модели. Следовательно, исходя из теоремы Гаусса-Маркова, метод наименьших квадратов является наиболее оптимальной оценкой параметров модели среди всех линейных и несмещённых оценок за счёт меньшей дисперсии.
+
+\section{Датасет}
+
+\begin{longtable}{|p{3cm}|p{2cm}|p{2.5cm}|p{6cm}|p{3cm}|p{3cm}|}
+\hline
+\textbf{Variable Name} & \textbf{Role} & \textbf{Type} & \textbf{Description} & \textbf{Units} & \textbf{Missing Values} \\
+\hline
+
+VendorName & Feature & Categorical & (adviser, amdahl, apollo, basf, bti, burroughs, c.r.d, cambex, cdc, dec, dg, formation, four-phase, gould, honeywell, hp, ibm, ipl, magnuson, microdata, nas, ncr, nixdorf, perkin-elmer, prime, siemens, sperry, stratus, wang) &  & no \\
+\hline
+
+ModelName & Feature & Categorical & many unique symbols &  & no \\
+\hline
+
+MYCT & Feature & Integer & machine cycle time & nanoseconds & no \\
+\hline
+
+MMIN & Feature & Integer & minimum main memory & kilobytes & no \\
+\hline
+
+MMAX & Feature & Integer & maximum main memory & kilobytes & no \\
+\hline
+
+CACH & Feature & Integer & cache memory & kilobytes & no \\
+\hline
+
+CHMIN & Feature & Integer & minimum channels & units & no \\
+\hline
+
+CHMAX & Feature & Integer & maximum channels & units & no \\
+\hline
+
+PRP & Feature & Integer & published relative performance &  & no \\
+\hline
+
+ERP & Feature & Integer & estimated relative performance from the original article &  & no \\
+\hline
+
+\end{longtable}
+
+
+\section{Значимые переменные}
+
+Значимые переменные - признаки, которые реально влияют на целевую переменную, т.е влияют на предсказания модели.
+
+\begin{enumerate}
+\item All-in. В данном подходе производится включение всех признаков в
+модель.
+\item Backward Elimination. В подходе предполагается обучение модели с
+учетом всех признаков и удаление признаков по одному на основе их
+значимости до достижения ситуации, когда останутся только значимые
+признаки.
+\item Forward Selection. Подход предполагает начальное тестирование
+модели с одним признаком (тестируется каждый признак). Затем добавляются
+по одному наиболее значимые признаки.
+\item Bidirectional Elimination. Подход совмещает стратегии 2 и 3.
+\item Score Comparison.
+\end{enumerate}
+
+\endinput
